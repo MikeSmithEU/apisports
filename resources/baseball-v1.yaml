@@ -1,0 +1,2282 @@
+openapi: 3.0.0
+info:
+  title: API-BASEBALL
+  version: '1.0.9'
+  contact:
+    name: support
+    url: 'https://www.api-football.com'
+    email: https://dashboard.api-football.com
+  description: |
+    # Introduction
+
+    Welcome to Api-Baseball! You can use our API to access all API endpoints, which can get information about Baseball Leagues & Cups.
+
+    We have language bindings in C, C#, cURL, Dart, Go, Java, Javascript, NodeJs, Objective-c, OCaml, Php, PowerShell, Python, Ruby, Shell and Swift! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+
+    # Authentication
+
+    We uses API keys to allow access to the API. You can register a new API key in [rapidapi](https://rapidapi.com/api-sports/api/api-baseball/pricing) or directly on our [dashboard](https://dashboard.api-football.com/register).
+
+     The accounts on **RapidAPI** and on our **Dashboard** are dissociated. Each of these registration methods has its own **URL** and **API-KEY**. You must therefore adapt your scripts according to your subscription by adapting the URL and your API-KEY.
+
+    **RAPIDAPI** : https://api-baseball.p.rapidapi.com/
+
+    **API-SPORTS** : https://v1.baseball.api-sports.io/
+
+
+    Our API expects for the API key to be included in all API requests to the server in a header that looks like the following:
+
+    > Make sure to replace `XxXxXxXxXxXxXxXxXxXxXxXx` with your API key.
+
+    **REQUESTS HEADERS & CORS**
+
+    The API is configured to work only with **GET** requests and allows only the headers listed below:
+    * `x-rapidapi-host`
+    * `x-rapidapi-key`
+    * `x-apisports-key`
+
+    If you make non-GET requests or add headers that are not in the list, you will receive an error from the API.
+
+    Some frameworks *(especially in JS, nodeJS..)* automatically add extra headers, you have to make sure to remove them in order to get a response from the API.
+
+     ## RAPIDAPI Account
+
+    All information related to your subscription are available on the rapidApi developer dashboard.
+
+     The RapidAPI developer dashboard is where you can see all of your apps, locate API keys, view analytics, and manage billing settings.
+
+    To access the dashboard, simply login to RapidAPI and select 'My Apps' in the top-right menu. Alternatively, you can head directly to [https://rapidapi.com/developer/dashboard](https://rapidapi.com/developer/dashboard).
+
+    In the main dashboard, you will see account-wide analytics and account information. To get more detailed information, you can select tabs on the left-hand side of the screen.
+
+    ### App Specific Analytics
+
+    Using the RapidAPI dashboard, you can also view analytics specific to each app in your account. To do so, switch over to the 'Analytics' tab of your application in the dashboard.
+
+    On the top of the page, you'll be able to see a chart with all the calls being made to all the APIs your app is connected to. You'll also be able to see a log with all the request data. You are also able to filter these analytics to only show certain APIs within the app.
+
+    In each graph, you can view the following metrics:
+
+    * `API Calls`: how many requests are being made
+    * `Error rates`: how many requests are error some
+    * `Latency`: how long (on average) requests take to execute
+
+    You may change the time period you're looking at by clicking the calendar icon and choosing a time range.
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `server`: The current version of the API proxy used by RapidAPI.
+    * `x-ratelimit-requests-limit`: The number of requests the plan you are currently subscribed to allows you to make, before incurring overages.
+    * `x-ratelimit-requests-remaining`: The number of requests remaining before you reach the limit of requests your application is allowed to make, before experiencing overage charges.
+    * `X-RapidAPI-Proxy-Response`: This header is set to true when the RapidAPI proxy generates the response, (i.e. the response is not generated from our servers)
+
+    ## API-SPORTS Account
+
+    If you decided to subscribe directly on our site, you have a dashboard at your disposal at the following url: [dashboard](https://dashboard.api-football.com/register)
+
+
+    It allows you to:
+
+    * To follow your consumption in real time
+    * Manage your subscription and change it if necessary
+    * Check the status of our servers
+    * Test all endpoints without writing a line of code.
+
+    You can also consult all this information directly through the API by calling the endpoint `status`.
+
+    > This call does not count against the daily quota.
+
+    ```json
+    get("https://v1.baseball.api-sports.io/status");
+
+    // response
+    {
+        "get": "status",
+        "parameters": [],
+        "errors": [],
+        "results": 1,
+        "response": {
+            "account": {
+                "firstname": "xxxx",
+                "lastname": "XXXXXX",
+                "email": "xxx@xxx.com"
+            },
+            "subscription": {
+                "plan": "Free",
+                "end": "2020-04-10T23:24:27+00:00",
+                "active": true
+            },
+            "requests": {
+                "current": 12,
+                "limit_day": 100
+            }
+        }
+    }
+    ```
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `x-ratelimit-requests-limit`: The number of requests allocated per day according to your subscription.
+    * `x-ratelimit-requests-remaining`: The number of remaining requests per day according to your subscription.
+    * `X-RateLimit-Limit`: Maximum number of API calls per minute.
+    * `X-RateLimit-Remaining`: Number of API calls remaining before reaching the limit per minute.
+
+    ### Dashboard
+    ![dashboard](https://www.api-football.com/public/img/news/baseball-dashboard.png)
+
+    ### Requests
+    ![requests](https://www.api-football.com/public/img/news/baseball-requests.png)
+
+    # Architecture
+
+    ![image](https://www.api-football.com/public/img/news/archi-baseball.jpg)
+
+    # Sample Scripts
+
+    Here are some examples of how the API is used in the main development languages.
+
+    You have to replace `{endpoint}` by the real name of the endpoint you want to call, like `leagues` or `games` for example.
+
+    Also you will have to replace `XxXxXxXxXxXxXxXxXxXxXx` with your API-KEY provided in the [dashboard](https://dashboard.api-football.com/) or on [rapidapi](https://rapidapi.com/api-sports/api/api-baseball/pricing).
+
+
+    ## C
+
+    `libcurl`
+    ```shell
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+    if(curl) {
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+      curl_easy_setopt(curl, CURLOPT_URL, "https://v1.baseball.api-sports.io/{endpoint}");
+      curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+      curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+      struct curl_slist *headers = NULL;
+      headers = curl_slist_append(headers, "x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx");
+      headers = curl_slist_append(headers, "x-rapidapi-host: v1.baseball.api-sports.io");
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+      res = curl_easy_perform(curl);
+    }
+    curl_easy_cleanup(curl);
+    ```
+
+    ## C#
+
+    `RestSharp`
+    ```shell
+    var client = new RestClient("https://v1.baseball.api-sports.io/{endpoint}");
+    client.Timeout = -1;
+    var request = new RestRequest(Method.GET);
+    request.AddHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    request.AddHeader("x-rapidapi-host", "v1.baseball.api-sports.io");
+    IRestResponse response = client.Execute(request);
+    Console.WriteLine(response.Content);
+    ```
+
+    ## cURL
+
+    `Curl`
+    ```shell
+    curl --request GET \
+    	--url https://v1.baseball.api-sports.io/{endpoint} \
+    	--header 'x-rapidapi-host: v1.baseball.api-sports.io' \
+    	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+    ```
+
+    ## Dart
+
+    `http`
+    ```dart
+    var headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.baseball.api-sports.io'
+    };
+    var request = http.Request('GET', Uri.parse('https://v1.baseball.api-sports.io/{endpoint}'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+    ```
+
+    ## Go
+
+    `Native`
+    ```go
+    package main
+
+    import (
+      "fmt"
+      "net/http"
+      "io/ioutil"
+    )
+
+    func main() {
+
+      url := "https://v1.baseball.api-sports.io/{endpoint}"
+      method := "GET"
+
+      client := &http.Client {
+      }
+      req, err := http.NewRequest(method, url, nil)
+
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      req.Header.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      req.Header.Add("x-rapidapi-host", "v1.baseball.api-sports.io")
+
+      res, err := client.Do(req)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      defer res.Body.Close()
+
+      body, err := ioutil.ReadAll(res.Body)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      fmt.Println(string(body))
+    }
+    ```
+
+    ## Java
+
+    `OkHttp`
+    ```java
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.baseball.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+    ```
+
+    `Unirest`
+    ```java
+    Unirest.setTimeouts(0, 0);
+    HttpResponse<String> response = Unirest.get("https://v1.baseball.api-sports.io/{endpoint}")
+      .header("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      .header("x-rapidapi-host", "v1.baseball.api-sports.io")
+      .asString();
+    ```
+
+    ## Javascript
+
+    `Fetch`
+    ```javascript
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.baseball.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    fetch("https://v1.baseball.api-sports.io/{endpoint}", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+    ```
+
+    `jQuery`
+    ```javascript
+    var settings = {
+      "url": "https://v1.baseball.api-sports.io/{endpoint}",
+      "method": "GET",
+      "timeout": 0,
+      "headers": {
+        "x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx",
+        "x-rapidapi-host": "v1.baseball.api-sports.io"
+      },
+    };
+
+    $.ajax(settings).done(function (response) {
+      console.log(response);
+    });
+    ```
+
+    `XHR`
+    ```javascript
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function() {
+      if(this.readyState === 4) {
+        console.log(this.responseText);
+      }
+    });
+
+    xhr.open("GET", "https://v1.baseball.api-sports.io/%7Bendpoint%7D");
+    xhr.setRequestHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    xhr.setRequestHeader("x-rapidapi-host", "v1.baseball.api-sports.io");
+
+    xhr.send();
+    ```
+
+    ## NodeJs
+
+    `Axios`
+    ```nodejs
+    var axios = require('axios');
+
+    var config = {
+      method: 'get',
+      url: 'https://v1.baseball.api-sports.io/{endpoint}',
+      headers: {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.baseball.api-sports.io'
+      }
+    };
+
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    ```
+
+    `Native`
+    ```nodejs
+    var https = require('follow-redirects').https;
+    var fs = require('fs');
+
+    var options = {
+      'method': 'GET',
+      'hostname': 'v1.baseball.api-sports.io',
+      'path': '/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.baseball.api-sports.io'
+      },
+      'maxRedirects': 20
+    };
+
+    var req = https.request(options, function (res) {
+      var chunks = [];
+
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      res.on("end", function (chunk) {
+        var body = Buffer.concat(chunks);
+        console.log(body.toString());
+      });
+
+      res.on("error", function (error) {
+        console.error(error);
+      });
+    });
+
+    req.end();
+    ```
+
+    `Requests`
+    ```nodejs
+    var request = require('request');
+    var options = {
+      'method': 'GET',
+      'url': 'https://v1.baseball.api-sports.io/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.baseball.api-sports.io'
+      }
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+    ```
+
+    `Unirest`
+    ```nodejs
+    var unirest = require('unirest');
+    var req = unirest('GET', 'https://v1.baseball.api-sports.io/{endpoint}')
+      .headers({
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.baseball.api-sports.io'
+      })
+      .end(function (res) {
+        if (res.error) throw new Error(res.error);
+        console.log(res.raw_body);
+      });
+    ```
+
+    ## Objective-c
+
+    `NSURLSession`
+    ```objectivec
+    #import <Foundation/Foundation.h>
+
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://v1.baseball.api-sports.io/{endpoint}"]
+      cachePolicy:NSURLRequestUseProtocolCachePolicy
+      timeoutInterval:10.0];
+    NSDictionary *headers = @{
+      @"x-rapidapi-key": @"XxXxXxXxXxXxXxXxXxXxXxXx",
+      @"x-rapidapi-host": @"v1.baseball.api-sports.io"
+    };
+
+    [request setAllHTTPHeaderFields:headers];
+
+    [request setHTTPMethod:@"GET"];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+      if (error) {
+        NSLog(@"%@", error);
+        dispatch_semaphore_signal(sema);
+      } else {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+        NSError *parseError = nil;
+        NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+        NSLog(@"%@",responseDictionary);
+        dispatch_semaphore_signal(sema);
+      }
+    }];
+    [dataTask resume];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    ```
+
+    ## OCaml
+
+    `Cohttp`
+    ```ocaml
+    open Lwt
+    open Cohttp
+    open Cohttp_lwt_unix
+
+    let reqBody =
+      let uri = Uri.of_string "https://v1.baseball.api-sports.io/%7Bendpoint%7D" in
+      let headers = Header.init ()
+        |> fun h -> Header.add h "x-rapidapi-key" "XxXxXxXxXxXxXxXxXxXxXxXx"
+        |> fun h -> Header.add h "x-rapidapi-host" "v1.baseball.api-sports.io"
+      in
+      Client.call ~headers `GET uri >>= fun (_resp, body) ->
+      body |> Cohttp_lwt.Body.to_string >|= fun body -> body
+
+    let () =
+      let respBody = Lwt_main.run reqBody in
+      print_endline (respBody)
+    ```
+
+    ## Php
+
+    `cURL`
+    ```php
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => 'https://v1.baseball.api-sports.io/{endpoint}',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_HTTPHEADER => array(
+        'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host: v1.baseball.api-sports.io'
+      ),
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    echo $response;
+    ```
+
+    `Request2`
+    ```php
+    <?php
+    require_once 'HTTP/Request2.php';
+    $request = new HTTP_Request2();
+    $request->setUrl('https://v1.baseball.api-sports.io/{endpoint}');
+    $request->setMethod(HTTP_Request2::METHOD_GET);
+    $request->setConfig(array(
+      'follow_redirects' => TRUE
+    ));
+    $request->setHeader(array(
+      'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host' => 'v1.baseball.api-sports.io'
+    ));
+    try {
+      $response = $request->send();
+      if ($response->getStatus() == 200) {
+        echo $response->getBody();
+      }
+      else {
+        echo 'Unexpected HTTP status: ' . $response->getStatus() . ' ' .
+        $response->getReasonPhrase();
+      }
+    }
+    catch(HTTP_Request2_Exception $e) {
+      echo 'Error: ' . $e->getMessage();
+    }
+    ```
+
+    `Http`
+    ```php
+    $client = new http\Client;
+    $request = new http\Client\Request;
+    $request->setRequestUrl('https://v1.baseball.api-sports.io/{endpoint}');
+    $request->setRequestMethod('GET');
+    $request->setHeaders(array(
+    	'x-rapidapi-host' => 'v1.baseball.api-sports.io',
+    	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+    ));
+    $client->enqueue($request)->send();
+    $response = $client->getResponse();
+    echo $response->getBody();
+    ```
+
+    ## PowerShell
+
+    `RestMethod`
+    ```powershell
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+    $headers.Add("x-rapidapi-host", "v1.baseball.api-sports.io")
+
+    $response = Invoke-RestMethod 'https://v1.baseball.api-sports.io/{endpoint}' -Method 'GET' -Headers $headers
+    $response | ConvertTo-Json
+    ```
+
+    ## Python
+
+    `http.client`
+    ```python
+    import http.client
+
+    conn = http.client.HTTPSConnection("v1.baseball.api-sports.io")
+
+    headers = {
+        'x-rapidapi-host': "v1.baseball.api-sports.io",
+        'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+        }
+
+    conn.request("GET", "/{endpoint}", headers=headers)
+
+    res = conn.getresponse()
+    data = res.read()
+
+    print(data.decode("utf-8"))
+    ```
+
+    `Requests`
+    ```python
+    url = "https://v1.baseball.api-sports.io/{endpoint}"
+
+    payload={}
+    headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.baseball.api-sports.io'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    ```
+
+    ## Ruby
+
+    `Net::HTTP`
+    ```ruby
+    require 'uri'
+    require 'net/http'
+    require 'openssl'
+
+    url = URI("https://v1.baseball.api-sports.io/{endpoint}")
+
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = Net::HTTP::Get.new(url)
+    request["x-rapidapi-host"] = 'v1.baseball.api-sports.io'
+    request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+    response = http.request(request)
+    puts response.read_body
+    ```
+
+    ## Shell
+
+    `Httpie`
+    ```shell
+    http --follow --timeout 3600 GET 'https://v1.baseball.api-sports.io/{endpoint}' \
+     x-rapidapi-key:'XxXxXxXxXxXxXxXxXxXxXxXx' \
+     x-rapidapi-host:'v1.baseball.api-sports.io'
+    ```
+
+    `wget`
+    ```shell
+    wget --no-check-certificate --quiet \
+      --method GET \
+      --timeout=0 \
+      --header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx' \
+      --header 'x-rapidapi-host: v1.baseball.api-sports.io' \
+       'https://v1.baseball.api-sports.io/{endpoint}'
+    ```
+
+    ## Swift
+
+    `URLSession`
+    ```swift
+    import Foundation
+    #if canImport(FoundationNetworking)
+    import FoundationNetworking
+    #endif
+
+    var semaphore = DispatchSemaphore (value: 0)
+
+    var request = URLRequest(url: URL(string: "https://v1.baseball.api-sports.io/{endpoint}")!,timeoutInterval: Double.infinity)
+    request.addValue("XxXxXxXxXxXxXxXxXxXxXxXx", forHTTPHeaderField: "x-rapidapi-key")
+    request.addValue("v1.baseball.api-sports.io", forHTTPHeaderField: "x-rapidapi-host")
+
+    request.httpMethod = "GET"
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      guard let data = data else {
+        print(String(describing: error))
+        semaphore.signal()
+        return
+      }
+      print(String(data: data, encoding: .utf8)!)
+      semaphore.signal()
+    }
+
+    task.resume()
+    semaphore.wait()
+    ```
+  x-logo:
+    url: 'https://www.api-football.com/public/img/home1/baseball-logo.png'
+    altText: api-baseball logo
+servers:
+  - url: 'https://v1.baseball.api-sports.io'
+    description: API-SPORTS
+  - url: 'https://api-baseball.p.rapidapi.com'
+    description: RapidAPI
+paths:
+  /timezone:
+    get:
+      summary: timezone
+      tags:
+        - Timezone
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: timezone
+                    parameters: []
+                    errors: []
+                    results: 425
+                    response:
+                      - Africa/Abidjan
+                      - Africa/Accra
+                      - Africa/Addis_Ababa
+                      - Africa/Algiers
+                      - Africa/Asmara
+                      - Africa/Bamako
+      operationId: get-timezone
+      description: |-
+        Get the list of available timezone to be used in the fixtures endpoint.
+
+        > This endpoint does not require any parameters.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+  /seasons:
+    get:
+      summary: seasons
+      tags:
+        - Seasons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-1:
+                  value:
+                    get: seasons
+                    parameters: []
+                    errors: []
+                    results: 6
+                    response:
+                      - 2015
+                      - 2016
+                      - 2017
+                      - 2018
+                      - 2019
+                      - 2020
+      operationId: get-seasons
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        All seasons are only **4-digit keys**, so for a league whose season is `2018-2019` the season in the API will be `2018`.
+
+        All `seasons` can be used in other endpoints as filters.
+
+        > This endpoint does not require any parameters.
+  /countries:
+    get:
+      summary: countries
+      tags:
+        - Countries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: countries
+                    parameters:
+                      code: us
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        name: USA
+                        code: US
+                        flag: 'https://media.api-sports.io/flags/us.svg'
+      operationId: get-countries
+      description: "Get the list of available countries.\n\n The `name` and `code` fields can be used in other endpoints as filters. \n\n> All the parameters of this endpoint can be used together."
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the country
+        - schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+          in: query
+          name: code
+          description: The code of the country
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+  /leagues:
+    get:
+      summary: leagues
+      tags:
+        - Leagues
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: leagues
+                    parameters:
+                      id: '1'
+                      season: '2020'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        name: MLB
+                        type: League
+                        logo: null
+                        country:
+                          id: 1
+                          name: USA
+                          code: US
+                          flag: 'https://media.api-sports.io/flags/us.svg'
+                        seasons:
+                          - season: 2020
+                            current: true
+                            start: '2020-02-21'
+                            end: '2020-09-03'
+      operationId: get-leagues
+      description: |-
+        Get the list of available leagues and cups.
+
+        The league `id` are **unique** in the API and leagues keep it across all `seasons`
+
+        > Most of the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the league
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the league
+        - schema:
+            type: integer
+          in: query
+          name: country_id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: country
+          description: The name of the country
+        - schema:
+            type: string
+            enum:
+              - league
+              - cup
+          in: query
+          name: type
+          description: The type of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: You rapidAPI Key
+          required: true
+  /teams:
+    get:
+      summary: teams
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: teams
+                    parameters:
+                      id: '3'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 3
+                        name: Atlanta Braves
+                        logo: 'https://media.api-sports.io/baseball/teams/3.png'
+                        country:
+                          id: 1
+                          name: USA
+                          code: US
+                          flag: 'https://media.api-sports.io/flags/us.svg'
+      operationId: get-teams
+      description: |-
+        Get data about teams.
+
+        The team `id` are **unique** in the API and teams keep it among all the leagues/cups in which they participate.
+
+        > **This endpoint requires at least one parameter.**
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the team
+        - schema:
+            type: integer
+          in: query
+          name: country_id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: country
+          description: The name of the country
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+  /teams/statistics:
+    get:
+      summary: teams/statistics
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: teams/statistics
+                    parameters:
+                      league: '1'
+                      team: '5'
+                      season: '2019'
+                    errors: []
+                    results: 5
+                    response:
+                      country:
+                        id: 1
+                        name: USA
+                        code: US
+                        flag: 'https://media.api-sports.io/flags/us.svg'
+                      league:
+                        id: 1
+                        name: MLB
+                        type: League
+                        logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                        season: 2019
+                      team:
+                        id: 5
+                        name: Boston Red Sox
+                        logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                      games:
+                        played:
+                          home: 94
+                          away: 94
+                          all: 188
+                        wins:
+                          home:
+                            total: 44
+                            percentage: '0.468'
+                          away:
+                            total: 49
+                            percentage: '0.521'
+                          all:
+                            total: 93
+                            percentage: '0.495'
+                        loses:
+                          home:
+                            total: 50
+                            percentage: '0.532'
+                          away:
+                            total: 44
+                            percentage: '0.468'
+                          all:
+                            total: 94
+                            percentage: '0.500'
+                      points:
+                        for:
+                          total:
+                            home: 522
+                            away: 496
+                            all: 1018
+                          average:
+                            home: '5.6'
+                            away: '5.3'
+                            all: '5.4'
+                        against:
+                          total:
+                            home: 514
+                            away: 470
+                            all: 984
+                          average:
+                            home: '5.5'
+                            away: '5.0'
+                            all: '5.2'
+      operationId: get-teams-statistics
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          required: true
+          description: The id of the league
+        - schema:
+            type: string
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          required: true
+          description: The id of the team
+        - schema:
+            type: string
+            pattern: YYYY-MM-DD
+          in: query
+          name: date
+          description: A date limit
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: ''
+  /games:
+    get:
+      summary: games
+      tags:
+        - Games
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: games
+                    parameters:
+                      id: '1'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        date: '2020-02-21T18:05:00+00:00'
+                        time: '18:05'
+                        timestamp: 1582308300
+                        timezone: UTC
+                        week: null
+                        status:
+                          long: Finished
+                          short: FT
+                        country:
+                          id: 1
+                          name: USA
+                          code: US
+                          flag: 'https://media.api-sports.io/flags/us.svg'
+                        league:
+                          id: 1
+                          name: MLB
+                          type: League
+                          logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                          season: 2020
+                        teams:
+                          home:
+                            id: 5
+                            name: Boston Red Sox
+                            logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                          away:
+                            id: 43
+                            name: Northeastern
+                            logo: 'https://media.api-sports.io/baseball/teams/43.png'
+                        scores:
+                          home:
+                            hits: 6
+                            errors: 2
+                            innings:
+                              '1': 0
+                              '2': 0
+                              '3': 0
+                              '4': 0
+                              '5': 0
+                              '6': 3
+                              '7': null
+                              '8': null
+                              '9': null
+                              extra: null
+                            total: 3
+                          away:
+                            hits: 4
+                            errors: 0
+                            innings:
+                              '1': 0
+                              '2': 0
+                              '3': 0
+                              '4': 0
+                              '5': 0
+                              '6': 0
+                              '7': 0
+                              '8': null
+                              '9': null
+                              extra: null
+                            total: 0
+      operationId: get-games
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the game
+        - schema:
+            type: string
+          in: query
+          name: date
+          description: A valid date
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: timezone
+          description: A valid timezone
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        For all requests to games you can add the query parameter `timezone` to your request in order to retrieve the list of games in the time zone of your choice like *“Europe/London“*
+
+        To know the list of available time zones you have to use the endpoint timezone
+
+        **Available status**
+
+        * NS : Not Started
+        * IN1 : Inning 1
+        * IN2 : Inning 2
+        * IN3 : Inning 3
+        * IN4 : Inning 4
+        * IN5 : Inning 5
+        * IN6 : Inning 6
+        * IN7 : Inning 7
+        * IN8 : Inning 8
+        * IN9 : Inning 9
+        * POST : Postponed
+        * CANC : Cancelled
+        * INTR : Interrupted
+        * ABD : Abandoned
+        * FT : Finished
+
+        > Games are updated every 15 seconds
+
+        > **This endpoint requires at least one parameter.**
+  /games/h2h:
+    get:
+      summary: games/h2h
+      tags:
+        - Games
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: games/h2h
+                    parameters:
+                      h2h: 5-6
+                      date: '2017-04-28'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 17445
+                        date: '2017-04-28T23:10:00+00:00'
+                        time: '23:10'
+                        timestamp: 1493421000
+                        timezone: UTC
+                        week: null
+                        status:
+                          long: Finished
+                          short: FT
+                        country:
+                          id: 1
+                          name: USA
+                          code: US
+                          flag: 'https://media.api-sports.io/flags/us.svg'
+                        league:
+                          id: 1
+                          name: MLB
+                          type: League
+                          logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                          season: 2017
+                        teams:
+                          home:
+                            id: 5
+                            name: Boston Red Sox
+                            logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                          away:
+                            id: 6
+                            name: Chicago Cubs
+                            logo: 'https://media.api-sports.io/baseball/teams/6.png'
+                        scores:
+                          home:
+                            hits: 13
+                            errors: 2
+                            innings:
+                              '1': 5
+                              '2': 0
+                              '3': 0
+                              '4': 0
+                              '5': 0
+                              '6': 0
+                              '7': 0
+                              '8': 0
+                              '9': null
+                              extra: null
+                            total: 5
+                          away:
+                            hits: 11
+                            errors: 0
+                            innings:
+                              '1': 1
+                              '2': 0
+                              '3': 1
+                              '4': 0
+                              '5': 0
+                              '6': 0
+                              '7': 2
+                              '8': 0
+                              '9': 0
+                              extra: null
+                            total: 4
+      operationId: get-games-h2h
+      parameters:
+        - schema:
+            type: string
+            pattern: id-id
+          in: query
+          name: h2h
+          description: The ids of the teams
+          required: true
+        - schema:
+            type: string
+            pattern: YYYY-MM-DD
+          in: query
+          name: date
+          description: A valid date
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+          in: query
+          name: timezone
+          description: A valid timezone
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: Get heads to heads between two teams.
+  /standings:
+    get:
+      summary: standings
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings
+                    parameters:
+                      league: '1'
+                      season: '2020'
+                      team: '5'
+                    errors: []
+                    results: 2
+                    response:
+                      - - position: 12
+                          stage: MLB - Regular Season
+                          group:
+                            name: American League
+                          team:
+                            id: 5
+                            name: Boston Red Sox
+                            logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                          league:
+                            id: 1
+                            name: MLB
+                            type: League
+                            logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                            season: 2020
+                          country:
+                            id: 1
+                            name: USA
+                            code: US
+                            flag: 'https://media.api-sports.io/flags/us.svg'
+                          games:
+                            played: 0
+                            win:
+                              total: 0
+                              percentage: '0.000'
+                            lose:
+                              total: 0
+                              percentage: '0.000'
+                          points:
+                            for: 0
+                            against: 0
+                          form: null
+                          description: null
+                        - position: 5
+                          stage: MLB - Regular Season
+                          group:
+                            name: AL East
+                          team:
+                            id: 5
+                            name: Boston Red Sox
+                            logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                          league:
+                            id: 1
+                            name: MLB
+                            type: League
+                            logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                            season: 2020
+                          country:
+                            id: 1
+                            name: USA
+                            code: US
+                            flag: 'https://media.api-sports.io/flags/us.svg'
+                          games:
+                            played: 0
+                            win:
+                              total: 0
+                              percentage: '0.000'
+                            lose:
+                              total: 0
+                              percentage: '0.000'
+                          points:
+                            for: 0
+                            against: 0
+                          form: null
+                          description: null
+                      - - position: 9
+                          stage: MLB - Pre-season
+                          group:
+                            name: American League
+                          team:
+                            id: 5
+                            name: Boston Red Sox
+                            logo: 'https://media.api-sports.io/baseball/teams/5.png'
+                          league:
+                            id: 1
+                            name: MLB
+                            type: League
+                            logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                            season: 2020
+                          country:
+                            id: 1
+                            name: USA
+                            code: US
+                            flag: 'https://media.api-sports.io/flags/us.svg'
+                          games:
+                            played: 12
+                            win:
+                              total: 5
+                              percentage: '0.417'
+                            lose:
+                              total: 7
+                              percentage: '0.583'
+                          points:
+                            for: 57
+                            against: 60
+                          form: null
+                          description: null
+      operationId: get-standings
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          required: true
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: stage
+          description: A valid stage
+        - schema:
+            type: string
+          in: query
+          name: group
+          description: A valid group
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        Get the standings for a league.
+
+        Return a table of one or more rankings according to the league / cup. Some competitions have several rankings in a year, regular season, pre season etc…
+
+        To know the list of available stages or groups you have to use the endpoint standings/stages or standings/groups
+
+        > Standings are updated every hours
+  /standings/stages:
+    get:
+      summary: standings/stages
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings/stages
+                    parameters:
+                      league: '1'
+                      season: '2020'
+                    errors: []
+                    results: 2
+                    response:
+                      - MLB - Regular Season
+                      - MLB - Pre-season
+      operationId: get-standings-stages
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+          required: true
+        - schema:
+            type: string
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: Get the list of available stages for a league to be used in the standings endpoint.
+  /standings/groups:
+    get:
+      summary: standings/groups
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings/groups
+                    parameters:
+                      league: '1'
+                      season: '2020'
+                    errors: []
+                    results: 8
+                    response:
+                      - American League
+                      - National League
+                      - AL East
+                      - AL Central
+                      - AL West
+                      - NL East
+                      - NL Central
+                      - NL West
+      operationId: get-standings-groups
+      description: Get the list of available groups for a league to be used in the standings endpoint.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+          required: true
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+  /odds:
+    get:
+      summary: odds
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds
+                    parameters:
+                      game: '5'
+                    errors: []
+                    results: 1
+                    response:
+                      - country:
+                          id: 1
+                          name: USA
+                          code: US
+                          flag: 'https://media.api-sports.io/flags/us.svg'
+                        league:
+                          id: 1
+                          name: MLB
+                          type: League
+                          logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                          season: 2020
+                        game:
+                          id: 5
+                          date: '2020-02-22T18:05:00+00:00'
+                          time: '18:05'
+                          timestamp: 1582394700
+                          timezone: UTC
+                          week: null
+                          status:
+                            long: Finished
+                            short: FT
+                          country:
+                            id: 1
+                            name: USA
+                            code: US
+                            flag: 'https://media.api-sports.io/flags/us.svg'
+                          league:
+                            id: 1
+                            name: MLB
+                            type: League
+                            logo: 'https://media.api-sports.io/baseball/leagues/1.png'
+                            season: 2020
+                          teams:
+                            home:
+                              id: 3
+                              name: Atlanta Braves
+                              logo: 'https://media.api-sports.io/baseball/teams/3.png'
+                            away:
+                              id: 4
+                              name: Baltimore Orioles
+                              logo: 'https://media.api-sports.io/baseball/teams/4.png'
+                          scores:
+                            home:
+                              hits: 8
+                              errors: 0
+                              innings:
+                                '1': 3
+                                '2': 0
+                                '3': 1
+                                '4': 0
+                                '5': 1
+                                '6': 0
+                                '7': 0
+                                '8': 0
+                                '9': null
+                                extra: null
+                              total: 5
+                            away:
+                              hits: 4
+                              errors: 0
+                              innings:
+                                '1': 0
+                                '2': 0
+                                '3': 0
+                                '4': 0
+                                '5': 0
+                                '6': 0
+                                '7': 0
+                                '8': 0
+                                '9': 0
+                                extra: null
+                              total: 0
+                        bookmakers:
+                          - id: 8
+                            name: bwin
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.62'
+                                  - value: Away
+                                    odd: '2.35'
+                          - id: 9
+                            name: 10Bet
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.56'
+                                  - value: Away
+                                    odd: '2.20'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.11'
+                                  - value: Away -1.5
+                                    odd: '1.60'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.82'
+                                  - value: Under 9
+                                    odd: '1.81'
+                          - id: 2
+                            name: bet365
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.64'
+                                  - value: Away
+                                    odd: '2.35'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.30'
+                                  - value: Away -1.5
+                                    odd: '1.66'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.86'
+                                  - value: Under 9
+                                    odd: '1.95'
+                          - id: 10
+                            name: Marathon
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.61'
+                                  - value: Away
+                                    odd: '2.33'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.29'
+                                  - value: Away -1.5
+                                    odd: '1.63'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9.5
+                                    odd: '1.94'
+                                  - value: Under 9.5
+                                    odd: '1.87'
+                                  - value: Over 9
+                                    odd: '1.88'
+                                  - value: Under 9
+                                    odd: '1.93'
+                          - id: 11
+                            name: Unibet
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.63'
+                                  - value: Away
+                                    odd: '2.30'
+                          - id: 3
+                            name: 5Dimes
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.68'
+                                  - value: Away
+                                    odd: '2.37'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.25'
+                                  - value: Away -1.5
+                                    odd: '1.69'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.83'
+                                  - value: Under 9
+                                    odd: '2.00'
+                              - id: 6
+                                name: Over/Under (1st 5 Innings)
+                                values:
+                                  - value: Over 5
+                                    odd: '1.87'
+                                  - value: Under 5
+                                    odd: '1.95'
+                              - id: 3
+                                name: Asian Handicap (1st 5 Innings)
+                                values:
+                                  - value: Home -0.5
+                                    odd: '1.87'
+                                  - value: Away -0.5
+                                    odd: '1.95'
+                              - id: 4
+                                name: Money Line (1st 5 Innings)
+                                values:
+                                  - value: Home
+                                    odd: '1.65'
+                                  - value: Away
+                                    odd: '2.35'
+                          - id: 12
+                            name: Intertops
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.65'
+                                  - value: Away
+                                    odd: '2.35'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.83'
+                                  - value: Under 9
+                                    odd: '2.00'
+                          - id: 4
+                            name: Pncl
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.65'
+                                  - value: Away
+                                    odd: '2.33'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.93'
+                                  - value: Under 9
+                                    odd: '1.89'
+                          - id: 5
+                            name: Sbo
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.62'
+                                  - value: Away
+                                    odd: '2.31'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.26'
+                                  - value: Away -1.5
+                                    odd: '1.65'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.84'
+                                  - value: Under 9
+                                    odd: '2.00'
+                          - id: 1
+                            name: 1xbet
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.59'
+                                  - value: Away
+                                    odd: '2.34'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.27'
+                                  - value: Away -1.5
+                                    odd: '1.64'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9.5
+                                    odd: '1.99'
+                                  - value: Under 9.5
+                                    odd: '1.83'
+                                  - value: Over 9
+                                    odd: '1.85'
+                                  - value: Under 9
+                                    odd: '1.97'
+                          - id: 6
+                            name: Bovada
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.61'
+                                  - value: Away
+                                    odd: '2.30'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.25'
+                                  - value: Away -1.5
+                                    odd: '1.63'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 9
+                                    odd: '1.87'
+                                  - value: Under 9
+                                    odd: '1.91'
+                              - id: 6
+                                name: Over/Under (1st 5 Innings)
+                                values:
+                                  - value: Over 5
+                                    odd: '1.83'
+                                  - value: Under 5
+                                    odd: '1.91'
+                              - id: 3
+                                name: Asian Handicap (1st 5 Innings)
+                                values:
+                                  - value: Home -0.5
+                                    odd: '1.83'
+                                  - value: Away -0.5
+                                    odd: '1.91'
+                              - id: 4
+                                name: Money Line (1st 5 Innings)
+                                values:
+                                  - value: Home
+                                    odd: '1.63'
+                                  - value: Away
+                                    odd: '2.40'
+                          - id: 7
+                            name: Betcris
+                            bets:
+                              - id: 1
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.65'
+                                  - value: Away
+                                    odd: '2.35'
+                              - id: 2
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -1.5
+                                    odd: '2.40'
+                                  - value: Away -1.5
+                                    odd: '1.62'
+                              - id: 5
+                                name: Over/Under
+                                values:
+                                  - value: Over 6.5
+                                    odd: '1.32'
+                                  - value: Under 6.5
+                                    odd: '3.50'
+                                  - value: Over 9.5
+                                    odd: '2.10'
+                                  - value: Under 9.5
+                                    odd: '1.78'
+                                  - value: Over 10.5
+                                    odd: '2.55'
+                                  - value: Under 10.5
+                                    odd: '1.55'
+                                  - value: Over 11.5
+                                    odd: '3.15'
+                                  - value: Under 11.5
+                                    odd: '1.38'
+                                  - value: Over 8.5
+                                    odd: '1.75'
+                                  - value: Under 8.5
+                                    odd: '2.15'
+      operationId: get-odds
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            minLength: 4
+            maxLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: game
+          description: The id of the game
+        - schema:
+            type: integer
+          in: query
+          name: bookmaker
+          description: The id of the bookmaker
+        - schema:
+            type: integer
+          in: query
+          name: bet
+          description: The id of the bet
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        Get odds from games or leagues.
+
+        We provide pre-match odds between 1 and 7 days before the game.
+
+        We keep a 7-day history *(The availability of odds may vary according to the leagues, seasons, games and bookmakers)*
+
+        > Odds are updated once a day
+  /odds/bets:
+    get:
+      summary: odds/bets
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds/bets
+                    parameters: []
+                    errors: []
+                    results: 28
+                    response:
+                      - id: 1
+                        name: Home/Away
+                      - id: 2
+                        name: Asian Handicap
+                      - id: 3
+                        name: Asian Handicap (1st 5 Innings)
+                      - id: 4
+                        name: Money Line (1st 5 Innings)
+                      - id: 5
+                        name: Over/Under
+                      - id: 6
+                        name: Over/Under (1st 5 Innings)
+                      - id: 7
+                        name: Total - Home
+                      - id: 8
+                        name: Total - Away
+                      - id: 9
+                        name: Odd/Even (Including OT)
+                      - id: 10
+                        name: 1x2 (1st Inning)
+                      - id: 11
+                        name: Over/Under (1st Inning)
+                      - id: 12
+                        name: Asian Handicap (1st Inning)
+                      - id: 13
+                        name: Asian Handicap (OT)
+                      - id: 14
+                        name: Match Winner
+                      - id: 15
+                        name: Goals Over/Under 1st Half
+                      - id: 16
+                        name: 1st Half Winner
+                      - id: 17
+                        name: Asian Handicap First Half
+                      - id: 18
+                        name: Over/Under (OT)
+                      - id: 19
+                        name: Asian Handicap (OT)
+                      - id: 20
+                        name: 2nd Half Winner
+                      - id: 21
+                        name: HT/FT Double
+                      - id: 22
+                        name: Both Teams To Score
+                      - id: 23
+                        name: Correct Score
+                      - id: 24
+                        name: Correct Score 1st Half
+                      - id: 25
+                        name: Double Chance
+                      - id: 26
+                        name: Team To Score First
+                      - id: 27
+                        name: Double Chance - 1st Half
+                      - id: 28
+                        name: Double Chance - 2nd Half
+      operationId: get-odds-bets
+      description: |-
+        Get all available bets.
+
+        All bets `id` can be used in endpoint odds as filters
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the bet
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: The name of the bet
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+  /odds/bookmakers:
+    get:
+      summary: odds/bookmakers
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds/bookmakers
+                    parameters: []
+                    errors: []
+                    results: 13
+                    response:
+                      - id: 1
+                        name: 1xbet
+                      - id: 2
+                        name: Bet365
+                      - id: 3
+                        name: 5Dimes
+                      - id: 4
+                        name: Pinnacle
+                      - id: 5
+                        name: Sports Betting Online
+                      - id: 6
+                        name: Bovada
+                      - id: 7
+                        name: Betcris
+                      - id: 8
+                        name: Bwin
+                      - id: 9
+                        name: 10Bet
+                      - id: 10
+                        name: Marathon
+                      - id: 11
+                        name: Unibet
+                      - id: 12
+                        name: Intertops
+                      - id: 13
+                        name: Betfair
+      operationId: get-odds-bookmakers
+      description: |-
+        Get all available bookmakers.
+
+        All bookmakers `id` can be used in endpoint odds as filters.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the bookmaker
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: The name of the bookmaker
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+components:
+  schemas: {}
+
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - Timezone
+      - Seasons
+      - Countries
+      - Leagues
+      - Teams
+      - Standings
+      - Games
+      - Odds

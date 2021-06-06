@@ -1,0 +1,3073 @@
+openapi: 3.0.0
+info:
+  title: API-FORMULA-1
+  version: 1.0.2
+  x-logo:
+    url: 'https://www.api-football.com/public/img/news/f1-mini.png'
+    altText: api-formula-1 logo
+  description: |
+    # Introduction
+
+    Welcome to Api-Formula-1! You can use our API to access all API endpoints, which can get information about Formula-1 competition.
+
+    We have language bindings in C, C#, cURL, Dart, Go, Java, Javascript, NodeJs, Objective-c, OCaml, Php, PowerShell, Python, Ruby, Shell and Swift! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+
+    # Authentication
+
+    We uses API keys to allow access to the API. You can register a new API key in [rapidapi](https://rapidapi.com/api-sports/api/api-formula-1/pricing) or directly on our [dashboard](https://dashboard.api-football.com/register).
+
+     The accounts on **RapidAPI** and on our **Dashboard** are dissociated. Each of these registration methods has its own **URL** and **API-KEY**. You must therefore adapt your scripts according to your subscription by adapting the URL and your API-KEY.
+
+    **RAPIDAPI** : https://api-formula-1.p.rapidapi.com/
+
+    **API-SPORTS** : https://v1.formula-1.api-sports.io/
+
+
+    Our API expects for the API key to be included in all API requests to the server in a header that looks like the following:
+
+    > Make sure to replace `XxXxXxXxXxXxXxXxXxXxXxXx` with your API key.
+
+    **REQUESTS HEADERS & CORS**
+
+    The API is configured to work only with **GET** requests and allows only the headers listed below:
+    * `x-rapidapi-host`
+    * `x-rapidapi-key`
+    * `x-apisports-key`
+
+    If you make non-GET requests or add headers that are not in the list, you will receive an error from the API.
+
+    Some frameworks *(especially in JS, nodeJS..)* automatically add extra headers, you have to make sure to remove them in order to get a response from the API.
+
+     ## RAPIDAPI Account
+
+    All information related to your subscription are available on the rapidApi developer dashboard.
+
+     The RapidAPI developer dashboard is where you can see all of your apps, locate API keys, view analytics, and manage billing settings.
+
+    To access the dashboard, simply login to RapidAPI and select 'My Apps' in the top-right menu. Alternatively, you can head directly to [https://rapidapi.com/developer/dashboard](https://rapidapi.com/developer/dashboard).
+
+    In the main dashboard, you will see account-wide analytics and account information. To get more detailed information, you can select tabs on the left-hand side of the screen.
+
+    ### App Specific Analytics
+
+    Using the RapidAPI dashboard, you can also view analytics specific to each app in your account. To do so, switch over to the 'Analytics' tab of your application in the dashboard.
+
+    On the top of the page, you'll be able to see a chart with all the calls being made to all the APIs your app is connected to. You'll also be able to see a log with all the request data. You are also able to filter these analytics to only show certain APIs within the app.
+
+    In each graph, you can view the following metrics:
+
+    * `API Calls`: how many requests are being made
+    * `Error rates`: how many requests are error some
+    * `Latency`: how long (on average) requests take to execute
+
+    You may change the time period you're looking at by clicking the calendar icon and choosing a time range.
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `server`: The current version of the API proxy used by RapidAPI.
+    * `x-ratelimit-requests-limit`: The number of requests the plan you are currently subscribed to allows you to make, before incurring overages.
+    * `x-ratelimit-requests-remaining`: The number of requests remaining before you reach the limit of requests your application is allowed to make, before experiencing overage charges.
+    * `X-RapidAPI-Proxy-Response`: This header is set to true when the RapidAPI proxy generates the response, (i.e. the response is not generated from our servers)
+
+    ## API-SPORTS Account
+
+    If you decided to subscribe directly on our site, you have a dashboard at your disposal at the following url: [dashboard](https://dashboard.api-football.com/register)
+
+
+    It allows you to:
+
+    * To follow your consumption in real time
+    * Manage your subscription and change it if necessary
+    * Check the status of our servers
+    * Test all endpoints without writing a line of code.
+
+    You can also consult all this information directly through the API by calling the endpoint `status`.
+
+    > This call does not count against the daily quota.
+
+    ```json
+    get("https://v1.formula-1.api-sports.io/status");
+
+    // response
+    {
+        "get": "status",
+        "parameters": [],
+        "errors": [],
+        "results": 1,
+        "response": {
+            "account": {
+                "firstname": "xxxx",
+                "lastname": "XXXXXX",
+                "email": "xxx@xxx.com"
+            },
+            "subscription": {
+                "plan": "Free",
+                "end": "2020-04-10T23:24:27+00:00",
+                "active": true
+            },
+            "requests": {
+                "current": 12,
+                "limit_day": 100
+            }
+        }
+    }
+    ```
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `x-ratelimit-requests-limit`: The number of requests allocated per day according to your subscription.
+    * `x-ratelimit-requests-remaining`: The number of remaining requests per day according to your subscription.
+    * `X-RateLimit-Limit`: Maximum number of API calls per minute.
+    * `X-RateLimit-Remaining`: Number of API calls remaining before reaching the limit per minute.
+
+    ### Dashboard
+    ![dashboard](https://www.api-football.com/public/img/news/baseball-dashboard.png)
+
+    ### Requests
+    ![requests](https://www.api-football.com/public/img/news/baseball-requests.png)
+
+    # Architecture
+
+    ![image](https://www.api-football.com/public/img/news/archi-f1.jpg)
+
+    # Sample Scripts
+
+    Here are some examples of how the API is used in the main development languages.
+
+    You have to replace `{endpoint}` by the real name of the endpoint you want to call, like `leagues` or `games` for example.
+
+    Also you will have to replace `XxXxXxXxXxXxXxXxXxXxXx` with your API-KEY provided in the [dashboard](https://dashboard.api-football.com/) or on [rapidapi](https://rapidapi.com/api-sports/api/api-formula-1/pricing).
+
+
+    ## C
+
+    `libcurl`
+    ```shell
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+    if(curl) {
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+      curl_easy_setopt(curl, CURLOPT_URL, "https://v1.formula-1.api-sports.io/{endpoint}");
+      curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+      curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+      struct curl_slist *headers = NULL;
+      headers = curl_slist_append(headers, "x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx");
+      headers = curl_slist_append(headers, "x-rapidapi-host: v1.formula-1.api-sports.io");
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+      res = curl_easy_perform(curl);
+    }
+    curl_easy_cleanup(curl);
+    ```
+
+    ## C#
+
+    `RestSharp`
+    ```shell
+    var client = new RestClient("https://v1.formula-1.api-sports.io/{endpoint}");
+    client.Timeout = -1;
+    var request = new RestRequest(Method.GET);
+    request.AddHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    request.AddHeader("x-rapidapi-host", "v1.formula-1.api-sports.io");
+    IRestResponse response = client.Execute(request);
+    Console.WriteLine(response.Content);
+    ```
+
+    ## cURL
+
+    `Curl`
+    ```shell
+    curl --request GET \
+    	--url https://v1.formula-1.api-sports.io/{endpoint} \
+    	--header 'x-rapidapi-host: v1.formula-1.api-sports.io' \
+    	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+    ```
+
+    ## Dart
+
+    `http`
+    ```dart
+    var headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+    };
+    var request = http.Request('GET', Uri.parse('https://v1.formula-1.api-sports.io/{endpoint}'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+    ```
+
+    ## Go
+
+    `Native`
+    ```go
+    package main
+
+    import (
+      "fmt"
+      "net/http"
+      "io/ioutil"
+    )
+
+    func main() {
+
+      url := "https://v1.formula-1.api-sports.io/{endpoint}"
+      method := "GET"
+
+      client := &http.Client {
+      }
+      req, err := http.NewRequest(method, url, nil)
+
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      req.Header.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      req.Header.Add("x-rapidapi-host", "v1.formula-1.api-sports.io")
+
+      res, err := client.Do(req)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      defer res.Body.Close()
+
+      body, err := ioutil.ReadAll(res.Body)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      fmt.Println(string(body))
+    }
+    ```
+
+    ## Java
+
+    `OkHttp`
+    ```java
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.formula-1.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+    ```
+
+    `Unirest`
+    ```java
+    Unirest.setTimeouts(0, 0);
+    HttpResponse<String> response = Unirest.get("https://v1.formula-1.api-sports.io/{endpoint}")
+      .header("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      .header("x-rapidapi-host", "v1.formula-1.api-sports.io")
+      .asString();
+    ```
+
+    ## Javascript
+
+    `Fetch`
+    ```javascript
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.formula-1.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    fetch("https://v1.formula-1.api-sports.io/{endpoint}", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+    ```
+
+    `jQuery`
+    ```javascript
+    var settings = {
+      "url": "https://v1.formula-1.api-sports.io/{endpoint}",
+      "method": "GET",
+      "timeout": 0,
+      "headers": {
+        "x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx",
+        "x-rapidapi-host": "v1.formula-1.api-sports.io"
+      },
+    };
+
+    $.ajax(settings).done(function (response) {
+      console.log(response);
+    });
+    ```
+
+    `XHR`
+    ```javascript
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function() {
+      if(this.readyState === 4) {
+        console.log(this.responseText);
+      }
+    });
+
+    xhr.open("GET", "https://v1.formula-1.api-sports.io/%7Bendpoint%7D");
+    xhr.setRequestHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    xhr.setRequestHeader("x-rapidapi-host", "v1.formula-1.api-sports.io");
+
+    xhr.send();
+    ```
+
+    ## NodeJs
+
+    `Axios`
+    ```nodejs
+    var axios = require('axios');
+
+    var config = {
+      method: 'get',
+      url: 'https://v1.formula-1.api-sports.io/{endpoint}',
+      headers: {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+      }
+    };
+
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    ```
+
+    `Native`
+    ```nodejs
+    var https = require('follow-redirects').https;
+    var fs = require('fs');
+
+    var options = {
+      'method': 'GET',
+      'hostname': 'v1.formula-1.api-sports.io',
+      'path': '/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+      },
+      'maxRedirects': 20
+    };
+
+    var req = https.request(options, function (res) {
+      var chunks = [];
+
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      res.on("end", function (chunk) {
+        var body = Buffer.concat(chunks);
+        console.log(body.toString());
+      });
+
+      res.on("error", function (error) {
+        console.error(error);
+      });
+    });
+
+    req.end();
+    ```
+
+    `Requests`
+    ```nodejs
+    var request = require('request');
+    var options = {
+      'method': 'GET',
+      'url': 'https://v1.formula-1.api-sports.io/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+      }
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+    ```
+
+    `Unirest`
+    ```nodejs
+    var unirest = require('unirest');
+    var req = unirest('GET', 'https://v1.formula-1.api-sports.io/{endpoint}')
+      .headers({
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+      })
+      .end(function (res) {
+        if (res.error) throw new Error(res.error);
+        console.log(res.raw_body);
+      });
+    ```
+
+    ## Objective-c
+
+    `NSURLSession`
+    ```objectivec
+    #import <Foundation/Foundation.h>
+
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://v1.formula-1.api-sports.io/{endpoint}"]
+      cachePolicy:NSURLRequestUseProtocolCachePolicy
+      timeoutInterval:10.0];
+    NSDictionary *headers = @{
+      @"x-rapidapi-key": @"XxXxXxXxXxXxXxXxXxXxXxXx",
+      @"x-rapidapi-host": @"v1.formula-1.api-sports.io"
+    };
+
+    [request setAllHTTPHeaderFields:headers];
+
+    [request setHTTPMethod:@"GET"];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+      if (error) {
+        NSLog(@"%@", error);
+        dispatch_semaphore_signal(sema);
+      } else {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+        NSError *parseError = nil;
+        NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+        NSLog(@"%@",responseDictionary);
+        dispatch_semaphore_signal(sema);
+      }
+    }];
+    [dataTask resume];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    ```
+
+    ## OCaml
+
+    `Cohttp`
+    ```ocaml
+    open Lwt
+    open Cohttp
+    open Cohttp_lwt_unix
+
+    let reqBody =
+      let uri = Uri.of_string "https://v1.formula-1.api-sports.io/%7Bendpoint%7D" in
+      let headers = Header.init ()
+        |> fun h -> Header.add h "x-rapidapi-key" "XxXxXxXxXxXxXxXxXxXxXxXx"
+        |> fun h -> Header.add h "x-rapidapi-host" "v1.formula-1.api-sports.io"
+      in
+      Client.call ~headers `GET uri >>= fun (_resp, body) ->
+      body |> Cohttp_lwt.Body.to_string >|= fun body -> body
+
+    let () =
+      let respBody = Lwt_main.run reqBody in
+      print_endline (respBody)
+    ```
+
+    ## Php
+
+    `cURL`
+    ```php
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => 'https://v1.formula-1.api-sports.io/{endpoint}',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_HTTPHEADER => array(
+        'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host: v1.formula-1.api-sports.io'
+      ),
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    echo $response;
+    ```
+
+    `Request2`
+    ```php
+    <?php
+    require_once 'HTTP/Request2.php';
+    $request = new HTTP_Request2();
+    $request->setUrl('https://v1.formula-1.api-sports.io/{endpoint}');
+    $request->setMethod(HTTP_Request2::METHOD_GET);
+    $request->setConfig(array(
+      'follow_redirects' => TRUE
+    ));
+    $request->setHeader(array(
+      'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host' => 'v1.formula-1.api-sports.io'
+    ));
+    try {
+      $response = $request->send();
+      if ($response->getStatus() == 200) {
+        echo $response->getBody();
+      }
+      else {
+        echo 'Unexpected HTTP status: ' . $response->getStatus() . ' ' .
+        $response->getReasonPhrase();
+      }
+    }
+    catch(HTTP_Request2_Exception $e) {
+      echo 'Error: ' . $e->getMessage();
+    }
+    ```
+
+    `Http`
+    ```php
+    $client = new http\Client;
+    $request = new http\Client\Request;
+    $request->setRequestUrl('https://v1.formula-1.api-sports.io/{endpoint}');
+    $request->setRequestMethod('GET');
+    $request->setHeaders(array(
+    	'x-rapidapi-host' => 'v1.formula-1.api-sports.io',
+    	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+    ));
+    $client->enqueue($request)->send();
+    $response = $client->getResponse();
+    echo $response->getBody();
+    ```
+
+    ## PowerShell
+
+    `RestMethod`
+    ```powershell
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+    $headers.Add("x-rapidapi-host", "v1.formula-1.api-sports.io")
+
+    $response = Invoke-RestMethod 'https://v1.formula-1.api-sports.io/{endpoint}' -Method 'GET' -Headers $headers
+    $response | ConvertTo-Json
+    ```
+
+    ## Python
+
+    `http.client`
+    ```python
+    import http.client
+
+    conn = http.client.HTTPSConnection("v1.formula-1.api-sports.io")
+
+    headers = {
+        'x-rapidapi-host': "v1.formula-1.api-sports.io",
+        'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+        }
+
+    conn.request("GET", "/{endpoint}", headers=headers)
+
+    res = conn.getresponse()
+    data = res.read()
+
+    print(data.decode("utf-8"))
+    ```
+
+    `Requests`
+    ```python
+    url = "https://v1.formula-1.api-sports.io/{endpoint}"
+
+    payload={}
+    headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.formula-1.api-sports.io'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    ```
+
+    ## Ruby
+
+    `Net::HTTP`
+    ```ruby
+    require 'uri'
+    require 'net/http'
+    require 'openssl'
+
+    url = URI("https://v1.formula-1.api-sports.io/{endpoint}")
+
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = Net::HTTP::Get.new(url)
+    request["x-rapidapi-host"] = 'v1.formula-1.api-sports.io'
+    request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+    response = http.request(request)
+    puts response.read_body
+    ```
+
+    ## Shell
+
+    `Httpie`
+    ```shell
+    http --follow --timeout 3600 GET 'https://v1.formula-1.api-sports.io/{endpoint}' \
+     x-rapidapi-key:'XxXxXxXxXxXxXxXxXxXxXxXx' \
+     x-rapidapi-host:'v1.formula-1.api-sports.io'
+    ```
+
+    `wget`
+    ```shell
+    wget --no-check-certificate --quiet \
+      --method GET \
+      --timeout=0 \
+      --header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx' \
+      --header 'x-rapidapi-host: v1.formula-1.api-sports.io' \
+       'https://v1.formula-1.api-sports.io/{endpoint}'
+    ```
+
+    ## Swift
+
+    `URLSession`
+    ```swift
+    import Foundation
+    #if canImport(FoundationNetworking)
+    import FoundationNetworking
+    #endif
+
+    var semaphore = DispatchSemaphore (value: 0)
+
+    var request = URLRequest(url: URL(string: "https://v1.formula-1.api-sports.io/{endpoint}")!,timeoutInterval: Double.infinity)
+    request.addValue("XxXxXxXxXxXxXxXxXxXxXxXx", forHTTPHeaderField: "x-rapidapi-key")
+    request.addValue("v1.formula-1.api-sports.io", forHTTPHeaderField: "x-rapidapi-host")
+
+    request.httpMethod = "GET"
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      guard let data = data else {
+        print(String(describing: error))
+        semaphore.signal()
+        return
+      }
+      print(String(data: data, encoding: .utf8)!)
+      semaphore.signal()
+    }
+
+    task.resume()
+    semaphore.wait()
+    ```
+  contact:
+    url: 'https://dashboard.api-football.com'
+    email: support@api-football.com
+    name: api-sports
+servers:
+  - url: 'https://v1.formula-1.api-sports.io'
+    description: API-SPORTS
+  - url: 'https://api-formula-1.p.rapidapi.com'
+    description: RapidAPI
+paths:
+  /timezone:
+    get:
+      summary: timezone
+      tags:
+        - Timezone
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: timezone
+                    parameters: []
+                    errors: []
+                    results: 425
+                    response:
+                      - Africa/Abidjan
+                      - Africa/Accra
+                      - Africa/Addis_Ababa
+                      - Africa/Algiers
+                      - Africa/Asmara
+                      - Africa/Bamako
+      operationId: get-timezone
+      description: |-
+        Get the list of available timezone to be used in the races endpoint.
+
+        > This endpoint does not require any parameters.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/timezone');
+            $request->setRequestMethod('GET');
+            $request->setHeaders(array(
+                'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/timezone", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/timezone',
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/timezone", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url https://api-formula-1.p.rapidapi.com/timezone \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/timezone")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available timezone
+            get("https://api-formula-1.p.rapidapi.com/timezone");
+  /seasons:
+    get:
+      summary: seasons
+      tags:
+        - Seasons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-1:
+                  value:
+                    get: seasons
+                    parameters: []
+                    errors: []
+                    results: 9
+                    response:
+                      - 2012
+                      - 2013
+                      - 2014
+                      - 2015
+                      - 2016
+                      - 2017
+                      - 2018
+                      - 2019
+                      - 2020
+      operationId: get-seasons
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      description: |-
+        Get all seasons available.
+
+        All seasons are only **4-digit keys**. All results can be used in other endpoints as filters.
+
+        > This endpoint does not require any parameters.
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/seasons');
+            $request->setRequestMethod('GET');
+            $request->setHeaders(array(
+                'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/seasons", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/seasons',
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/seasons", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url https://api-formula-1.p.rapidapi.com/seasons \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/seasons")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available seasons
+            get("https://api-formula-1.p.rapidapi.com/seasons");
+  /competitions:
+    get:
+      summary: competitions
+      tags:
+        - Competitions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: competitions
+                    parameters:
+                      id: '1'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        name: Australian Grand Prix
+                        location:
+                          country: Australia
+                          city: Melbourne
+      operationId: get-competitions
+      description: |-
+        Get the list of available competitions.
+
+        > The competition `id` are **unique** in the API and competitions keep it across all `seasons`
+
+        All the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the competition
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the competition
+        - schema:
+            type: string
+          in: query
+          name: country
+          description: The name of the country
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: city
+          description: The name of the city
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: |
+            Allow to search for a competition name
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/competitions');
+            $request->setRequestMethod('GET');
+            $request->setHeaders(array(
+                'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/competitions", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/competitions',
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/competitions", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url https://api-formula-1.p.rapidapi.com/competitions \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/competitions")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available competitions
+            get("https://api-formula-1.p.rapidapi.com/competitions");
+
+            // Get competitions by id
+            get("https://api-formula-1.p.rapidapi.com/competitions?id=1");
+
+            // Get competitions by name
+            get("https://api-formula-1.p.rapidapi.com/competitions?name=Australian Grand Prix");
+
+            // Get competitions by countries
+            get("https://api-formula-1.p.rapidapi.com/competitions?country=australia");
+
+            // Allow to search for a competition name
+            get("https://api-formula-1.p.rapidapi.com/competitions?search=aust");
+  /circuits:
+    get:
+      summary: circuits
+      tags:
+        - Circuits
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: circuits
+                    parameters:
+                      id: '1'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        name: Albert Park
+                        image: 'https://media.api-sports.io/formula-1/circuits/1.png'
+                        competition:
+                          id: 1
+                          name: Australia Grand Prix
+                          location:
+                            country: Australia
+                            city: Melbourne
+                        length: 5.303 Kms
+                        capacity: 80000
+                        opened: 1953
+                        owner: null
+      operationId: get-circuits
+      description: |-
+        Get the list of available circuits.
+
+        > The circuit `id` are **unique** in the API and circuits keep it across all `seasons`
+
+        **Sample `image` of a circuit :**
+
+        ![circuit](https://media.api-sports.io/formula-1/circuits/1.png)
+
+        All the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the circuit
+        - schema:
+            type: integer
+          in: query
+          name: competition
+          description: The id of the competition
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the circuit
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: Allow to search for a circuit name
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/circuits');
+            $request->setRequestMethod('GET');
+            $request->setHeaders(array(
+                'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/circuits", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/circuits',
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/circuits", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url https://api-formula-1.p.rapidapi.com/circuits \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/circuits")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available circuits
+            get("https://api-formula-1.p.rapidapi.com/circuits");
+
+            // Get circuits by id
+            get("https://api-formula-1.p.rapidapi.com/circuits?id=1");
+
+            // Get circuits by name
+            get("https://api-formula-1.p.rapidapi.com/circuits?name=Albert Park");
+
+            // Get circuits by competition id
+            get("https://api-formula-1.p.rapidapi.com/circuits?competition=2");
+
+            // Allow to search for a circuits name
+            get("https://api-formula-1.p.rapidapi.com/circuits?search=Albert");
+  /teams:
+    get:
+      summary: teams
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: teams
+                    parameters:
+                      id: '1'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 1
+                        name: Red Bull Racing
+                        logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        president: Dietrich Mateschitz
+                        director: Christian Horner
+                        technical_manager: Adrian Newey
+                        engine: Honda V6 turbo hybride
+                        tyres: Pirelli
+      operationId: get-teams
+      description: |-
+        Get the list of available competitions.
+
+        > The team `id` are **unique** in the API and teams keep it across all `seasons`
+
+        **Sample `logo` of a team :**
+
+        ![circuit](https://media.api-sports.io/formula-1/teams/5.png)
+
+        All the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the team
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: Allow to search for a team name
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/teams');
+            $request->setRequestMethod('GET');
+            $request->setHeaders(array(
+                'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/teams", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/teams',
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/teams", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url https://api-formula-1.p.rapidapi.com/teams \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/teams")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available teams
+            get("https://api-formula-1.p.rapidapi.com/teams");
+
+            // Get teams by id
+            get("https://api-formula-1.p.rapidapi.com/teams?id=1");
+
+            // Get teams by name
+            get("https://api-formula-1.p.rapidapi.com/teams?name=red bull racing");
+
+            // Allow to search for a team name
+            get("https://api-formula-1.p.rapidapi.com/teams?search=Red Bull");
+  /drivers:
+    get:
+      summary: drivers
+      tags:
+        - Drivers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: drivers
+                    parameters:
+                      id: '20'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 20
+                        name: Lewis Hamilton
+                        image: 'https://media.api-sports.io/formula-1/drivers/20.png'
+                        nationality: British
+                        birthdate: '1985-01-07'
+                        teams:
+                          - season: 2019
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2018
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2017
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2016
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2015
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2014
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2013
+                            team:
+                              id: 5
+                              name: Mercedes-AMG Petronas
+                              logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                          - season: 2012
+                            team:
+                              id: 2
+                              name: McLaren Racing
+                              logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                          - season: 2011
+                            team:
+                              id: 2
+                              name: McLaren Racing
+                              logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+        '':
+          description: ''
+      operationId: get-drivers
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the driver
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the driver
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: Allow to search for a driver name
+      description: |-
+        Get the list of available drivers.
+
+        > The driver `id` are **unique** in the API and drivers keep it across all `seasons`
+
+        **Sample `image` of a driver :**
+
+        ![circuit](https://media.api-sports.io/formula-1/drivers/20.png)
+
+        All the parameters of this endpoint can be used together.
+
+        **This endpoint require at least one parameter.**
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/drivers');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'search' => 'lewi'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/drivers?search=lewi", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/drivers',
+              qs: {search: 'lewi'},
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/drivers?search=lewi", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://api-formula-1.p.rapidapi.com/drivers?search=lewi' \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/drivers?search=lewi")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get drivers by id
+            get("https://api-formula-1.p.rapidapi.com/drivers?id=1");
+
+            // Get drivers by name
+            get("https://api-formula-1.p.rapidapi.com/drivers?name=lewis hamilton");
+
+            // Allow to search for a drivers name
+            get("https://api-formula-1.p.rapidapi.com/drivers?search=lewi");
+  /races:
+    get:
+      summary: races
+      tags:
+        - Races
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: races
+                    parameters:
+                      season: '2019'
+                      competition: '1'
+                      type: race
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 50
+                        competition:
+                          id: 1
+                          name: Australia Grand Prix
+                          location:
+                            country: Australia
+                            city: Melbourne
+                        circuit:
+                          id: 1
+                          name: Albert Park
+                          image: 'https://media.api-sports.io/formula-1/circuits/1.png'
+                        season: 2019
+                        type: Race
+                        laps:
+                          current: 58/58
+                          total: 58
+                        distance: 307.574 Kms
+                        timezone: utc
+                        date: '2019-03-17T08:10:00+00:00'
+                        weather: Sunny
+                        status: Completed
+      operationId: get-races
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the race
+        - schema:
+            type: string
+            pattern: 'YYYY-MM-DD'
+          in: query
+          name: date
+          description: A valid date
+        - schema:
+            type: integer
+            maxLength: 2
+          in: query
+          name: next
+          description: The x next races
+        - schema:
+            type: integer
+            maxLength: 2
+          in: query
+          name: last
+          description: The x last races
+        - schema:
+            type: integer
+          in: query
+          name: competition
+          description: The id of the competition
+        - schema:
+            type: integer
+            minLength: 4
+            maxLength: 4
+          in: query
+          name: season
+          description: The season of the race
+        - schema:
+            type: string
+          in: query
+          name: type
+          description: The type of the race
+        - schema:
+            type: string
+          in: query
+          name: timezone
+          description: A valid timezone
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      description: |-
+        Get the list of available races for a competition.
+
+        For all requests to races you can add the query parameter `timezone` to your request in order to retrieve the list of races in the time zone of your choice like *“Europe/London“*
+
+        To know the list of available time zones you have to use the endpoint timezone
+
+        **Available Status**
+        * Completed
+        * Cancelled
+        * Postponed
+        * Scheduled
+
+        **Available Types**
+        * Race
+        * 1st Practice
+        * 2nd Practice
+        * 3rd Practice
+        * 1st Qualifying
+        * 2nd Qualifying
+        * 3rd Qualifying
+
+        > This endpoint requires at least parameters `id`, `date`, `next`, `last` or `competition` and `season`.
+
+        All the parameters of this endpoint can be used together.
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/races');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'competition' => '1',
+            	'season' => '2019'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/races?competition=1&season=2019", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/races',
+              qs: {competition: '1', season: '2019'},
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019' \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get races by id
+            get("https://api-formula-1.p.rapidapi.com/races?id=50");
+
+            // Get races by date
+            get("https://api-formula-1.p.rapidapi.com/races?date=2020-10-11");
+
+            // Get x next races
+            get("https://api-formula-1.p.rapidapi.com/races?next=10");
+
+            // Get x last races
+            get("https://api-formula-1.p.rapidapi.com/races?next=10&season=2020");
+
+            // Get races by competition & season
+            get("https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019");
+
+            // Get races by competition & season & change the timezone
+            get("https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019&timezone=europe/london");
+
+            // Get races by competition & season & type
+            get("https://api-formula-1.p.rapidapi.com/races?competition=1&season=2019&type=1st Practice");
+  /rankings/races:
+    get:
+      summary: rankings/races
+      tags:
+        - Rankings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: rankings
+                    parameters:
+                      race: '50'
+                    errors: []
+                    results: 20
+                    response:
+                      - race:
+                          id: 50
+                        driver:
+                          id: 5
+                          name: Valtteri Bottas
+                          image: 'https://media.api-sports.io/formula-1/drivers/5.png'
+                        team:
+                          id: 5
+                          name: Mercedes-AMG Petronas
+                          logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                        position: 1
+                        time: '1:25:27.325'
+                        laps: 58
+                        grid: '2'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 20
+                          name: Lewis Hamilton
+                          image: 'https://media.api-sports.io/formula-1/drivers/20.png'
+                        team:
+                          id: 5
+                          name: Mercedes-AMG Petronas
+                          logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                        position: 2
+                        time: '+20.886'
+                        laps: 58
+                        grid: '1'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 25
+                          name: Max Verstappen
+                          image: 'https://media.api-sports.io/formula-1/drivers/25.png'
+                        team:
+                          id: 1
+                          name: Red Bull Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        position: 3
+                        time: '+22.520'
+                        laps: 58
+                        grid: '4'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 19
+                          name: Sebastian Vettel
+                          image: 'https://media.api-sports.io/formula-1/drivers/19.png'
+                        team:
+                          id: 3
+                          name: Scuderia Ferrari
+                          logo: 'https://media.api-sports.io/formula-1/teams/3.png'
+                        position: 4
+                        time: '+57.109'
+                        laps: 58
+                        grid: '3'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 34
+                          name: Charles Leclerc
+                          image: 'https://media.api-sports.io/formula-1/drivers/34.png'
+                        team:
+                          id: 3
+                          name: Scuderia Ferrari
+                          logo: 'https://media.api-sports.io/formula-1/teams/3.png'
+                        position: 5
+                        time: '+58.230'
+                        laps: 58
+                        grid: '5'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 2
+                          name: Kevin Magnussen
+                          image: 'https://media.api-sports.io/formula-1/drivers/2.png'
+                        team:
+                          id: 14
+                          name: Haas F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/14.png'
+                        position: 6
+                        time: '+1:27.156'
+                        laps: 58
+                        grid: '7'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 6
+                          name: Nico Hulkenberg
+                          image: 'https://media.api-sports.io/formula-1/drivers/6.png'
+                        team:
+                          id: 13
+                          name: Renault F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/13.png'
+                        position: 7
+                        time: 1 Lap
+                        laps: 57
+                        grid: '11'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 7
+                          name: Kimi Raikkonen
+                          image: 'https://media.api-sports.io/formula-1/drivers/7.png'
+                        team:
+                          id: 18
+                          name: Alfa Romeo
+                          logo: 'https://media.api-sports.io/formula-1/teams/18.png'
+                        position: 8
+                        time: 1 Lap
+                        laps: 57
+                        grid: '9'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 31
+                          name: Lance Stroll
+                          image: 'https://media.api-sports.io/formula-1/drivers/31.png'
+                        team:
+                          id: 17
+                          name: Racing Point F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/17.png'
+                        position: 9
+                        time: 1 Lap
+                        laps: 57
+                        grid: '16'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 9
+                          name: Daniil Kvyat
+                          image: 'https://media.api-sports.io/formula-1/drivers/9.png'
+                        team:
+                          id: 7
+                          name: Scuderia Toro Rosso
+                          logo: 'https://media.api-sports.io/formula-1/teams/7.png'
+                        position: 10
+                        time: 1 Lap
+                        laps: 57
+                        grid: '15'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 36
+                          name: Pierre Gasly
+                          image: 'https://media.api-sports.io/formula-1/drivers/36.png'
+                        team:
+                          id: 1
+                          name: Red Bull Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        position: 11
+                        time: 1 Lap
+                        laps: 57
+                        grid: '17'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 49
+                          name: Lando Norris
+                          image: 'https://media.api-sports.io/formula-1/drivers/49.png'
+                        team:
+                          id: 2
+                          name: McLaren Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                        position: 12
+                        time: 1 Lap
+                        laps: 57
+                        grid: '8'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 10
+                          name: Sergio Perez
+                          image: 'https://media.api-sports.io/formula-1/drivers/10.png'
+                        team:
+                          id: 17
+                          name: Racing Point F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/17.png'
+                        position: 13
+                        time: 1 Lap
+                        laps: 57
+                        grid: '10'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 50
+                          name: Alexander Albon
+                          image: 'https://media.api-sports.io/formula-1/drivers/50.png'
+                        team:
+                          id: 7
+                          name: Scuderia Toro Rosso
+                          logo: 'https://media.api-sports.io/formula-1/teams/7.png'
+                        position: 14
+                        time: 1 Lap
+                        laps: 57
+                        grid: '13'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 29
+                          name: Antonio Giovinazzi
+                          image: 'https://media.api-sports.io/formula-1/drivers/29.png'
+                        team:
+                          id: 18
+                          name: Alfa Romeo
+                          logo: 'https://media.api-sports.io/formula-1/teams/18.png'
+                        position: 15
+                        time: 1 Lap
+                        laps: 57
+                        grid: '14'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 51
+                          name: George Russell
+                          image: 'https://media.api-sports.io/formula-1/drivers/51.png'
+                        team:
+                          id: 12
+                          name: Williams F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/12.png'
+                        position: 16
+                        time: 2 Laps
+                        laps: 56
+                        grid: '19'
+                        pits: 2
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 52
+                          name: Robert Kubica
+                          image: 'https://media.api-sports.io/formula-1/drivers/52.png'
+                        team:
+                          id: 12
+                          name: Williams F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/12.png'
+                        position: 17
+                        time: 3 Laps
+                        laps: 55
+                        grid: '20'
+                        pits: 3
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 16
+                          name: Romain Grosjean
+                          image: 'https://media.api-sports.io/formula-1/drivers/16.png'
+                        team:
+                          id: 14
+                          name: Haas F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/14.png'
+                        position: 0
+                        time: DNF
+                        laps: 29
+                        grid: '6'
+                        pits: 1
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 14
+                          name: Daniel Ricciardo
+                          image: 'https://media.api-sports.io/formula-1/drivers/14.png'
+                        team:
+                          id: 13
+                          name: Renault F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/13.png'
+                        position: 0
+                        time: DNF
+                        laps: 28
+                        grid: '12'
+                        pits: 2
+                        gap: null
+                      - race:
+                          id: 50
+                        driver:
+                          id: 24
+                          name: Carlos Sainz Jr
+                          image: 'https://media.api-sports.io/formula-1/drivers/24.png'
+                        team:
+                          id: 2
+                          name: McLaren Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                        position: 0
+                        time: DNF
+                        laps: 9
+                        grid: '18'
+                        pits: null
+                        gap: null
+      operationId: get-rankings-races
+      description: |-
+        Get the rankings for a race.
+
+        All the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: race
+          description: The id of the race
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: integer
+          in: query
+          name: driver
+          description: The id of the driver
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/rankings/races');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'race' => '50'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/rankings/races?race=50", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/rankings/races',
+              qs: {race: '50'},
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/rankings/races?race=50", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://api-formula-1.p.rapidapi.com/rankings/races?race=50' \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/rankings/races?race=50")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get rankings races by id
+            get("https://api-formula-1.p.rapidapi.com/rankings/races?id=50");
+
+            // Get rankings races by id and filtering by team
+            get("https://api-formula-1.p.rapidapi.com/rankings/races?id=50&team=10");
+
+            // Get rankings races by id and filtering by driver
+            get("https://api-formula-1.p.rapidapi.com/rankings/races?id=50&driver=8");
+
+            // Get rankings races by id and filtering by team & driver
+            get("https://api-formula-1.p.rapidapi.com/rankings/races?id=50&team=10&driver=8");
+  /rankings/teams:
+    get:
+      summary: rankings/teams
+      tags:
+        - Rankings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: rankings
+                    parameters:
+                      season: '2019'
+                    errors: []
+                    results: 10
+                    response:
+                      - position: 1
+                        team:
+                          id: 5
+                          name: Mercedes-AMG Petronas
+                          logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                        points: 739
+                        season: 2019
+                      - position: 2
+                        team:
+                          id: 3
+                          name: Scuderia Ferrari
+                          logo: 'https://media.api-sports.io/formula-1/teams/3.png'
+                        points: 504
+                        season: 2019
+                      - position: 3
+                        team:
+                          id: 1
+                          name: Red Bull Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        points: 417
+                        season: 2019
+                      - position: 4
+                        team:
+                          id: 2
+                          name: McLaren Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                        points: 145
+                        season: 2019
+                      - position: 5
+                        team:
+                          id: 13
+                          name: Renault F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/13.png'
+                        points: 91
+                        season: 2019
+                      - position: 6
+                        team:
+                          id: 7
+                          name: Scuderia Toro Rosso
+                          logo: 'https://media.api-sports.io/formula-1/teams/7.png'
+                        points: 85
+                        season: 2019
+                      - position: 7
+                        team:
+                          id: 17
+                          name: Racing Point F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/17.png'
+                        points: 73
+                        season: 2019
+                      - position: 8
+                        team:
+                          id: 18
+                          name: Alfa Romeo
+                          logo: 'https://media.api-sports.io/formula-1/teams/18.png'
+                        points: 57
+                        season: 2019
+                      - position: 9
+                        team:
+                          id: 14
+                          name: Haas F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/14.png'
+                        points: 28
+                        season: 2019
+                      - position: 10
+                        team:
+                          id: 12
+                          name: Williams F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/12.png'
+                        points: 1
+                        season: 2019
+      operationId: get-rankings-teams
+      parameters:
+        - schema:
+            type: string
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+      description: |-
+        Get the teams rankings for a season.
+
+        All the parameters of this endpoint can be used together.
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/rankings/teams');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'season' => '2019'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/rankings/teams?season=2019", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/rankings/teams',
+              qs: {season: '2019'},
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/rankings/teams?season=2019", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://api-formula-1.p.rapidapi.com/rankings/teams?season=2019' \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/rankings/teams?season=2019")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get rankings teams by season
+            get("https://api-formula-1.p.rapidapi.com/rankings/team?season=50");
+
+            // Get rankings teams by season and filtering by team
+            get("https://api-formula-1.p.rapidapi.com/rankings/teams?season=2019&team=10");
+  /rankings/drivers:
+    get:
+      summary: rankings/drivers
+      tags:
+        - Rankings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: rankings
+                    parameters:
+                      season: '2019'
+                    errors: []
+                    results: 20
+                    response:
+                      - position: 1
+                        driver:
+                          id: 20
+                          name: Lewis Hamilton
+                          image: 'https://media.api-sports.io/formula-1/drivers/20.png'
+                        team:
+                          id: 5
+                          name: Mercedes-AMG Petronas
+                          logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                        points: 413
+                        wins: 11
+                        behind: 0
+                        season: 2019
+                      - position: 2
+                        driver:
+                          id: 5
+                          name: Valtteri Bottas
+                          image: 'https://media.api-sports.io/formula-1/drivers/5.png'
+                        team:
+                          id: 5
+                          name: Mercedes-AMG Petronas
+                          logo: 'https://media.api-sports.io/formula-1/teams/5.png'
+                        points: 326
+                        wins: 3
+                        behind: 87
+                        season: 2019
+                      - position: 3
+                        driver:
+                          id: 25
+                          name: Max Verstappen
+                          image: 'https://media.api-sports.io/formula-1/drivers/25.png'
+                        team:
+                          id: 1
+                          name: Red Bull Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        points: 278
+                        wins: 3
+                        behind: 135
+                        season: 2019
+                      - position: 4
+                        driver:
+                          id: 34
+                          name: Charles Leclerc
+                          image: 'https://media.api-sports.io/formula-1/drivers/34.png'
+                        team:
+                          id: 3
+                          name: Scuderia Ferrari
+                          logo: 'https://media.api-sports.io/formula-1/teams/3.png'
+                        points: 264
+                        wins: 2
+                        behind: 149
+                        season: 2019
+                      - position: 5
+                        driver:
+                          id: 19
+                          name: Sebastian Vettel
+                          image: 'https://media.api-sports.io/formula-1/drivers/19.png'
+                        team:
+                          id: 3
+                          name: Scuderia Ferrari
+                          logo: 'https://media.api-sports.io/formula-1/teams/3.png'
+                        points: 240
+                        wins: 1
+                        behind: 173
+                        season: 2019
+                      - position: 6
+                        driver:
+                          id: 24
+                          name: Carlos Sainz Jr
+                          image: 'https://media.api-sports.io/formula-1/drivers/24.png'
+                        team:
+                          id: 2
+                          name: McLaren Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                        points: 96
+                        wins: 0
+                        behind: 317
+                        season: 2019
+                      - position: 7
+                        driver:
+                          id: 36
+                          name: Pierre Gasly
+                          image: 'https://media.api-sports.io/formula-1/drivers/36.png'
+                        team:
+                          id: 1
+                          name: Red Bull Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/1.png'
+                        points: 95
+                        wins: 0
+                        behind: 318
+                        season: 2019
+                      - position: 8
+                        driver:
+                          id: 50
+                          name: Alexander Albon
+                          image: 'https://media.api-sports.io/formula-1/drivers/50.png'
+                        team:
+                          id: 7
+                          name: Scuderia Toro Rosso
+                          logo: 'https://media.api-sports.io/formula-1/teams/7.png'
+                        points: 92
+                        wins: 0
+                        behind: 321
+                        season: 2019
+                      - position: 9
+                        driver:
+                          id: 14
+                          name: Daniel Ricciardo
+                          image: 'https://media.api-sports.io/formula-1/drivers/14.png'
+                        team:
+                          id: 13
+                          name: Renault F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/13.png'
+                        points: 54
+                        wins: 0
+                        behind: 359
+                        season: 2019
+                      - position: 10
+                        driver:
+                          id: 10
+                          name: Sergio Perez
+                          image: 'https://media.api-sports.io/formula-1/drivers/10.png'
+                        team:
+                          id: 17
+                          name: Racing Point F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/17.png'
+                        points: 52
+                        wins: 0
+                        behind: 361
+                        season: 2019
+                      - position: 11
+                        driver:
+                          id: 49
+                          name: Lando Norris
+                          image: 'https://media.api-sports.io/formula-1/drivers/49.png'
+                        team:
+                          id: 2
+                          name: McLaren Racing
+                          logo: 'https://media.api-sports.io/formula-1/teams/2.png'
+                        points: 49
+                        wins: 0
+                        behind: 364
+                        season: 2019
+                      - position: 12
+                        driver:
+                          id: 7
+                          name: Kimi Raikkonen
+                          image: 'https://media.api-sports.io/formula-1/drivers/7.png'
+                        team:
+                          id: 18
+                          name: Alfa Romeo
+                          logo: 'https://media.api-sports.io/formula-1/teams/18.png'
+                        points: 43
+                        wins: 0
+                        behind: 370
+                        season: 2019
+                      - position: 13
+                        driver:
+                          id: 9
+                          name: Daniil Kvyat
+                          image: 'https://media.api-sports.io/formula-1/drivers/9.png'
+                        team:
+                          id: 7
+                          name: Scuderia Toro Rosso
+                          logo: 'https://media.api-sports.io/formula-1/teams/7.png'
+                        points: 37
+                        wins: 0
+                        behind: 376
+                        season: 2019
+                      - position: 14
+                        driver:
+                          id: 6
+                          name: Nico Hulkenberg
+                          image: 'https://media.api-sports.io/formula-1/drivers/6.png'
+                        team:
+                          id: 13
+                          name: Renault F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/13.png'
+                        points: 37
+                        wins: 0
+                        behind: 376
+                        season: 2019
+                      - position: 15
+                        driver:
+                          id: 31
+                          name: Lance Stroll
+                          image: 'https://media.api-sports.io/formula-1/drivers/31.png'
+                        team:
+                          id: 17
+                          name: Racing Point F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/17.png'
+                        points: 21
+                        wins: 0
+                        behind: 392
+                        season: 2019
+                      - position: 16
+                        driver:
+                          id: 2
+                          name: Kevin Magnussen
+                          image: 'https://media.api-sports.io/formula-1/drivers/2.png'
+                        team:
+                          id: 14
+                          name: Haas F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/14.png'
+                        points: 20
+                        wins: 0
+                        behind: 393
+                        season: 2019
+                      - position: 17
+                        driver:
+                          id: 29
+                          name: Antonio Giovinazzi
+                          image: 'https://media.api-sports.io/formula-1/drivers/29.png'
+                        team:
+                          id: 18
+                          name: Alfa Romeo
+                          logo: 'https://media.api-sports.io/formula-1/teams/18.png'
+                        points: 14
+                        wins: 0
+                        behind: 399
+                        season: 2019
+                      - position: 18
+                        driver:
+                          id: 16
+                          name: Romain Grosjean
+                          image: 'https://media.api-sports.io/formula-1/drivers/16.png'
+                        team:
+                          id: 14
+                          name: Haas F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/14.png'
+                        points: 8
+                        wins: 0
+                        behind: 405
+                        season: 2019
+                      - position: 19
+                        driver:
+                          id: 52
+                          name: Robert Kubica
+                          image: 'https://media.api-sports.io/formula-1/drivers/52.png'
+                        team:
+                          id: 12
+                          name: Williams F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/12.png'
+                        points: 1
+                        wins: 0
+                        behind: 412
+                        season: 2019
+                      - position: 20
+                        driver:
+                          id: 51
+                          name: George Russell
+                          image: 'https://media.api-sports.io/formula-1/drivers/51.png'
+                        team:
+                          id: 12
+                          name: Williams F1 Team
+                          logo: 'https://media.api-sports.io/formula-1/teams/12.png'
+                        points: 0
+                        wins: 0
+                        behind: 413
+                        season: 2019
+      operationId: get-rankings-drivers
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your API-Key
+          required: true
+        - schema:
+            type: integer
+            minLength: 4
+            maxLength: 4
+          in: query
+          description: The season
+          required: true
+          name: season
+        - schema:
+            type: integer
+          in: query
+          name: driver
+          description: The id of the driver
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+      description: |-
+        Get the teams rankings for a season.
+
+        All the parameters of this endpoint can be used together.
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://api-formula-1.p.rapidapi.com/rankings/drivers');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'season' => '2019'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'api-formula-1.p.rapidapi.com',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("api-formula-1.p.rapidapi.com")
+
+            headers = {
+                'x-rapidapi-host': "api-formula-1.p.rapidapi.com",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/rankings/drivers?season=2019", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://api-formula-1.p.rapidapi.com/rankings/drivers',
+              qs: {season: '2019'},
+              headers: {
+                'x-rapidapi-host': 'api-formula-1.p.rapidapi.com',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "api-formula-1.p.rapidapi.com",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019' \
+            	--header 'x-rapidapi-host: api-formula-1.p.rapidapi.com' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'api-formula-1.p.rapidapi.com'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get rankings drivers by season
+            get("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=50");
+
+            // Get rankings drivers by season and filtering by team
+            get("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019&team=10");
+
+            // Get rankings drivers by season and filtering by driver
+            get("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019&driver=8");
+
+            // Get rankings drivers by season and filtering by team & driver
+            get("https://api-formula-1.p.rapidapi.com/rankings/drivers?season=2019&team=10&driver=8");
+components:
+  schemas: {}
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - Timezone
+      - Seasons
+      - Competitions
+      - Circuits
+      - Teams
+      - Drivers
+      - Races
+      - Rankings

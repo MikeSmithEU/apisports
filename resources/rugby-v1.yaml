@@ -1,0 +1,3693 @@
+openapi: 3.0.0
+info:
+  title: API-RUGBY
+  version: '1.0.1'
+  contact:
+    name: support
+    url: 'https://www.api-football.com'
+    email: https://dashboard.api-football.com
+  description: |
+    # Introduction
+
+    Welcome to Api-Rugby! You can use our API to access all API endpoints, which can get information about Rugby Leagues & Cups.
+
+    We have language bindings in C, C#, cURL, Dart, Go, Java, Javascript, NodeJs, Objective-c, OCaml, Php, PowerShell, Python, Ruby, Shell and Swift! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+
+    # Authentication
+
+    We uses API keys to allow access to the API. You can register a new API key in [rapidapi](https://rapidapi.com/api-sports/api/api-rugby/pricing) or directly on our [dashboard](https://dashboard.api-football.com/register).
+
+     The accounts on **RapidAPI** and on our **Dashboard** are dissociated. Each of these registration methods has its own **URL** and **API-KEY**. You must therefore adapt your scripts according to your subscription by adapting the URL and your API-KEY.
+
+    **RAPIDAPI** : https://api-rugby.p.rapidapi.com/
+
+    **API-SPORTS** : https://v1.rugby.api-sports.io/
+
+
+    Our API expects for the API key to be included in all API requests to the server in a header that looks like the following:
+
+    > Make sure to replace `XxXxXxXxXxXxXxXxXxXxXxXx` with your API key.
+
+    **REQUESTS HEADERS & CORS**
+
+    The API is configured to work only with **GET** requests and allows only the headers listed below:
+    * `x-rapidapi-host`
+    * `x-rapidapi-key`
+    * `x-apisports-key`
+
+    If you make non-GET requests or add headers that are not in the list, you will receive an error from the API.
+
+    Some frameworks *(especially in JS, nodeJS..)* automatically add extra headers, you have to make sure to remove them in order to get a response from the API.
+
+     ## RAPIDAPI Account
+
+    All information related to your subscription are available on the rapidApi developer dashboard.
+
+     The RapidAPI developer dashboard is where you can see all of your apps, locate API keys, view analytics, and manage billing settings.
+
+    To access the dashboard, simply login to RapidAPI and select 'My Apps' in the top-right menu. Alternatively, you can head directly to [https://rapidapi.com/developer/dashboard](https://rapidapi.com/developer/dashboard).
+
+    In the main dashboard, you will see account-wide analytics and account information. To get more detailed information, you can select tabs on the left-hand side of the screen.
+
+    ### App Specific Analytics
+
+    Using the RapidAPI dashboard, you can also view analytics specific to each app in your account. To do so, switch over to the 'Analytics' tab of your application in the dashboard.
+
+    On the top of the page, you'll be able to see a chart with all the calls being made to all the APIs your app is connected to. You'll also be able to see a log with all the request data. You are also able to filter these analytics to only show certain APIs within the app.
+
+    In each graph, you can view the following metrics:
+
+    * `API Calls`: how many requests are being made
+    * `Error rates`: how many requests are error some
+    * `Latency`: how long (on average) requests take to execute
+
+    You may change the time period you're looking at by clicking the calendar icon and choosing a time range.
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `server`: The current version of the API proxy used by RapidAPI.
+    * `x-ratelimit-requests-limit`: The number of requests the plan you are currently subscribed to allows you to make, before incurring overages.
+    * `x-ratelimit-requests-remaining`: The number of requests remaining before you reach the limit of requests your application is allowed to make, before experiencing overage charges.
+    * `X-RapidAPI-Proxy-Response`: This header is set to true when the RapidAPI proxy generates the response, (i.e. the response is not generated from our servers)
+
+    ## API-SPORTS Account
+
+    If you decided to subscribe directly on our site, you have a dashboard at your disposal at the following url: [dashboard](https://dashboard.api-football.com/register)
+
+
+    It allows you to:
+
+    * To follow your consumption in real time
+    * Manage your subscription and change it if necessary
+    * Check the status of our servers
+    * Test all endpoints without writing a line of code.
+
+    You can also consult all this information directly through the API by calling the endpoint `status`.
+
+    > This call does not count against the daily quota.
+
+    ```json
+    get("https://v1.rugby.api-sports.io/status");
+
+    // response
+    {
+        "get": "status",
+        "parameters": [],
+        "errors": [],
+        "results": 1,
+        "response": {
+            "account": {
+                "firstname": "xxxx",
+                "lastname": "XXXXXX",
+                "email": "xxx@xxx.com"
+            },
+            "subscription": {
+                "plan": "Free",
+                "end": "2020-04-10T23:24:27+00:00",
+                "active": true
+            },
+            "requests": {
+                "current": 12,
+                "limit_day": 100
+            }
+        }
+    }
+    ```
+
+    ### Headers sent as response
+
+    When consuming our API, you will always receive the following headers appended to the response:
+
+    * `x-ratelimit-requests-limit`: The number of requests allocated per day according to your subscription.
+    * `x-ratelimit-requests-remaining`: The number of remaining requests per day according to your subscription.
+    * `X-RateLimit-Limit`: Maximum number of API calls per minute.
+    * `X-RateLimit-Remaining`: Number of API calls remaining before reaching the limit per minute.
+
+    ### Dashboard
+    ![dashboard](https://www.api-football.com/public/img/news/baseball-dashboard.png)
+
+    ### Requests
+    ![requests](https://www.api-football.com/public/img/news/baseball-requests.png)
+
+    # Architecture
+
+    ![image](https://www.api-football.com/public/img/news/archi-rugby.jpg)
+
+    # Sample Scripts
+
+    Here are some examples of how the API is used in the main development languages.
+
+    You have to replace `{endpoint}` by the real name of the endpoint you want to call, like `leagues` or `games` for example.
+
+    Also you will have to replace `XxXxXxXxXxXxXxXxXxXxXx` with your API-KEY provided in the [dashboard](https://dashboard.api-football.com/) or on [rapidapi](https://rapidapi.com/api-sports/api/api-rugby/pricing).
+
+
+    ## C
+
+    `libcurl`
+    ```shell
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+    if(curl) {
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+      curl_easy_setopt(curl, CURLOPT_URL, "https://v1.rugby.api-sports.io/{endpoint}");
+      curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+      curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+      struct curl_slist *headers = NULL;
+      headers = curl_slist_append(headers, "x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx");
+      headers = curl_slist_append(headers, "x-rapidapi-host: v1.rugby.api-sports.io");
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+      res = curl_easy_perform(curl);
+    }
+    curl_easy_cleanup(curl);
+    ```
+
+    ## C#
+
+    `RestSharp`
+    ```shell
+    var client = new RestClient("https://v1.rugby.api-sports.io/{endpoint}");
+    client.Timeout = -1;
+    var request = new RestRequest(Method.GET);
+    request.AddHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    request.AddHeader("x-rapidapi-host", "v1.rugby.api-sports.io");
+    IRestResponse response = client.Execute(request);
+    Console.WriteLine(response.Content);
+    ```
+
+    ## cURL
+
+    `Curl`
+    ```shell
+    curl --request GET \
+    	--url https://v1.rugby.api-sports.io/{endpoint} \
+    	--header 'x-rapidapi-host: v1.rugby.api-sports.io' \
+    	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+    ```
+
+    ## Dart
+
+    `http`
+    ```dart
+    var headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.rugby.api-sports.io'
+    };
+    var request = http.Request('GET', Uri.parse('https://v1.rugby.api-sports.io/{endpoint}'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+    ```
+
+    ## Go
+
+    `Native`
+    ```go
+    package main
+
+    import (
+      "fmt"
+      "net/http"
+      "io/ioutil"
+    )
+
+    func main() {
+
+      url := "https://v1.rugby.api-sports.io/{endpoint}"
+      method := "GET"
+
+      client := &http.Client {
+      }
+      req, err := http.NewRequest(method, url, nil)
+
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      req.Header.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      req.Header.Add("x-rapidapi-host", "v1.rugby.api-sports.io")
+
+      res, err := client.Do(req)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      defer res.Body.Close()
+
+      body, err := ioutil.ReadAll(res.Body)
+      if err != nil {
+        fmt.Println(err)
+        return
+      }
+      fmt.Println(string(body))
+    }
+    ```
+
+    ## Java
+
+    `OkHttp`
+    ```java
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.rugby.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+    ```
+
+    `Unirest`
+    ```java
+    Unirest.setTimeouts(0, 0);
+    HttpResponse<String> response = Unirest.get("https://v1.rugby.api-sports.io/{endpoint}")
+      .header("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+      .header("x-rapidapi-host", "v1.rugby.api-sports.io")
+      .asString();
+    ```
+
+    ## Javascript
+
+    `Fetch`
+    ```javascript
+    var myHeaders = new Headers();
+    myHeaders.append("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    myHeaders.append("x-rapidapi-host", "v1.rugby.api-sports.io");
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    };
+
+    fetch("https://v1.rugby.api-sports.io/{endpoint}", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+    ```
+
+    `jQuery`
+    ```javascript
+    var settings = {
+      "url": "https://v1.rugby.api-sports.io/{endpoint}",
+      "method": "GET",
+      "timeout": 0,
+      "headers": {
+        "x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx",
+        "x-rapidapi-host": "v1.rugby.api-sports.io"
+      },
+    };
+
+    $.ajax(settings).done(function (response) {
+      console.log(response);
+    });
+    ```
+
+    `XHR`
+    ```javascript
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function() {
+      if(this.readyState === 4) {
+        console.log(this.responseText);
+      }
+    });
+
+    xhr.open("GET", "https://v1.rugby.api-sports.io/%7Bendpoint%7D");
+    xhr.setRequestHeader("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx");
+    xhr.setRequestHeader("x-rapidapi-host", "v1.rugby.api-sports.io");
+
+    xhr.send();
+    ```
+
+    ## NodeJs
+
+    `Axios`
+    ```nodejs
+    var axios = require('axios');
+
+    var config = {
+      method: 'get',
+      url: 'https://v1.rugby.api-sports.io/{endpoint}',
+      headers: {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.rugby.api-sports.io'
+      }
+    };
+
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    ```
+
+    `Native`
+    ```nodejs
+    var https = require('follow-redirects').https;
+    var fs = require('fs');
+
+    var options = {
+      'method': 'GET',
+      'hostname': 'v1.rugby.api-sports.io',
+      'path': '/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.rugby.api-sports.io'
+      },
+      'maxRedirects': 20
+    };
+
+    var req = https.request(options, function (res) {
+      var chunks = [];
+
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      res.on("end", function (chunk) {
+        var body = Buffer.concat(chunks);
+        console.log(body.toString());
+      });
+
+      res.on("error", function (error) {
+        console.error(error);
+      });
+    });
+
+    req.end();
+    ```
+
+    `Requests`
+    ```nodejs
+    var request = require('request');
+    var options = {
+      'method': 'GET',
+      'url': 'https://v1.rugby.api-sports.io/{endpoint}',
+      'headers': {
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.rugby.api-sports.io'
+      }
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
+    ```
+
+    `Unirest`
+    ```nodejs
+    var unirest = require('unirest');
+    var req = unirest('GET', 'https://v1.rugby.api-sports.io/{endpoint}')
+      .headers({
+        'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host': 'v1.rugby.api-sports.io'
+      })
+      .end(function (res) {
+        if (res.error) throw new Error(res.error);
+        console.log(res.raw_body);
+      });
+    ```
+
+    ## Objective-c
+
+    `NSURLSession`
+    ```objectivec
+    #import <Foundation/Foundation.h>
+
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://v1.rugby.api-sports.io/{endpoint}"]
+      cachePolicy:NSURLRequestUseProtocolCachePolicy
+      timeoutInterval:10.0];
+    NSDictionary *headers = @{
+      @"x-rapidapi-key": @"XxXxXxXxXxXxXxXxXxXxXxXx",
+      @"x-rapidapi-host": @"v1.rugby.api-sports.io"
+    };
+
+    [request setAllHTTPHeaderFields:headers];
+
+    [request setHTTPMethod:@"GET"];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+      if (error) {
+        NSLog(@"%@", error);
+        dispatch_semaphore_signal(sema);
+      } else {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+        NSError *parseError = nil;
+        NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+        NSLog(@"%@",responseDictionary);
+        dispatch_semaphore_signal(sema);
+      }
+    }];
+    [dataTask resume];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    ```
+
+    ## OCaml
+
+    `Cohttp`
+    ```ocaml
+    open Lwt
+    open Cohttp
+    open Cohttp_lwt_unix
+
+    let reqBody =
+      let uri = Uri.of_string "https://v1.rugby.api-sports.io/%7Bendpoint%7D" in
+      let headers = Header.init ()
+        |> fun h -> Header.add h "x-rapidapi-key" "XxXxXxXxXxXxXxXxXxXxXxXx"
+        |> fun h -> Header.add h "x-rapidapi-host" "v1.rugby.api-sports.io"
+      in
+      Client.call ~headers `GET uri >>= fun (_resp, body) ->
+      body |> Cohttp_lwt.Body.to_string >|= fun body -> body
+
+    let () =
+      let respBody = Lwt_main.run reqBody in
+      print_endline (respBody)
+    ```
+
+    ## Php
+
+    `cURL`
+    ```php
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => 'https://v1.rugby.api-sports.io/{endpoint}',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_HTTPHEADER => array(
+        'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx',
+        'x-rapidapi-host: v1.rugby.api-sports.io'
+      ),
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    echo $response;
+    ```
+
+    `Request2`
+    ```php
+    <?php
+    require_once 'HTTP/Request2.php';
+    $request = new HTTP_Request2();
+    $request->setUrl('https://v1.rugby.api-sports.io/{endpoint}');
+    $request->setMethod(HTTP_Request2::METHOD_GET);
+    $request->setConfig(array(
+      'follow_redirects' => TRUE
+    ));
+    $request->setHeader(array(
+      'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host' => 'v1.rugby.api-sports.io'
+    ));
+    try {
+      $response = $request->send();
+      if ($response->getStatus() == 200) {
+        echo $response->getBody();
+      }
+      else {
+        echo 'Unexpected HTTP status: ' . $response->getStatus() . ' ' .
+        $response->getReasonPhrase();
+      }
+    }
+    catch(HTTP_Request2_Exception $e) {
+      echo 'Error: ' . $e->getMessage();
+    }
+    ```
+
+    `Http`
+    ```php
+    $client = new http\Client;
+    $request = new http\Client\Request;
+    $request->setRequestUrl('https://v1.rugby.api-sports.io/{endpoint}');
+    $request->setRequestMethod('GET');
+    $request->setHeaders(array(
+    	'x-rapidapi-host' => 'v1.rugby.api-sports.io',
+    	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+    ));
+    $client->enqueue($request)->send();
+    $response = $client->getResponse();
+    echo $response->getBody();
+    ```
+
+    ## PowerShell
+
+    `RestMethod`
+    ```powershell
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("x-rapidapi-key", "XxXxXxXxXxXxXxXxXxXxXxXx")
+    $headers.Add("x-rapidapi-host", "v1.rugby.api-sports.io")
+
+    $response = Invoke-RestMethod 'https://v1.rugby.api-sports.io/{endpoint}' -Method 'GET' -Headers $headers
+    $response | ConvertTo-Json
+    ```
+
+    ## Python
+
+    `http.client`
+    ```python
+    import http.client
+
+    conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+    headers = {
+        'x-rapidapi-host': "v1.rugby.api-sports.io",
+        'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+        }
+
+    conn.request("GET", "/{endpoint}", headers=headers)
+
+    res = conn.getresponse()
+    data = res.read()
+
+    print(data.decode("utf-8"))
+    ```
+
+    `Requests`
+    ```python
+    url = "https://v1.rugby.api-sports.io/{endpoint}"
+
+    payload={}
+    headers = {
+      'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx',
+      'x-rapidapi-host': 'v1.rugby.api-sports.io'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+    ```
+
+    ## Ruby
+
+    `Net::HTTP`
+    ```ruby
+    require 'uri'
+    require 'net/http'
+    require 'openssl'
+
+    url = URI("https://v1.rugby.api-sports.io/{endpoint}")
+
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = Net::HTTP::Get.new(url)
+    request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+    request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+    response = http.request(request)
+    puts response.read_body
+    ```
+
+    ## Shell
+
+    `Httpie`
+    ```shell
+    http --follow --timeout 3600 GET 'https://v1.rugby.api-sports.io/{endpoint}' \
+     x-rapidapi-key:'XxXxXxXxXxXxXxXxXxXxXxXx' \
+     x-rapidapi-host:'v1.rugby.api-sports.io'
+    ```
+
+    `wget`
+    ```shell
+    wget --no-check-certificate --quiet \
+      --method GET \
+      --timeout=0 \
+      --header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx' \
+      --header 'x-rapidapi-host: v1.rugby.api-sports.io' \
+       'https://v1.rugby.api-sports.io/{endpoint}'
+    ```
+
+    ## Swift
+
+    `URLSession`
+    ```swift
+    import Foundation
+    #if canImport(FoundationNetworking)
+    import FoundationNetworking
+    #endif
+
+    var semaphore = DispatchSemaphore (value: 0)
+
+    var request = URLRequest(url: URL(string: "https://v1.rugby.api-sports.io/{endpoint}")!,timeoutInterval: Double.infinity)
+    request.addValue("XxXxXxXxXxXxXxXxXxXxXxXx", forHTTPHeaderField: "x-rapidapi-key")
+    request.addValue("v1.rugby.api-sports.io", forHTTPHeaderField: "x-rapidapi-host")
+
+    request.httpMethod = "GET"
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      guard let data = data else {
+        print(String(describing: error))
+        semaphore.signal()
+        return
+      }
+      print(String(data: data, encoding: .utf8)!)
+      semaphore.signal()
+    }
+
+    task.resume()
+    semaphore.wait()
+    ```
+  x-logo:
+    url: 'https://www.api-football.com/public/img/home1/rugby-logo.png'
+    altText: api-rugby logo
+servers:
+  - url: 'https://v1.rugby.api-sports.io'
+    description: API-SPORTS
+  - url: 'https://api-rugby.p.rapidapi.com'
+    description: RapidAPI
+paths:
+  /timezone:
+    get:
+      summary: timezone
+      tags:
+        - Timezone
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: timezone
+                    parameters: []
+                    errors: []
+                    results: 425
+                    response:
+                      - Africa/Abidjan
+                      - Africa/Accra
+                      - Africa/Addis_Ababa
+                      - Africa/Algiers
+                      - Africa/Asmara
+                      - Africa/Bamako
+      operationId: get-timezone
+      description: |-
+        Get the list of available timezone to be used in the games endpoint.
+
+        > This endpoint does not require any parameters.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/timezone');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/timezone", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/timezone',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/timezone\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/timezone \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/timezone")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+  /seasons:
+    get:
+      summary: seasons
+      tags:
+        - Seasons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-1:
+                  value:
+                    get: seasons
+                    parameters: []
+                    errors: []
+                    results: 6
+                    response:
+                      - 2012
+                      - 2013
+                      - 2014
+                      - 2015
+                      - 2016
+                      - 2017
+                      - 2018
+                      - 2019
+                      - 2020
+      operationId: get-seasons
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        All seasons are only **4-digit keys**, so for a league whose season is `2018-2019` the season in the API will be `2018`.
+
+        All `seasons` can be used in other endpoints as filters.
+
+        > This endpoint does not require any parameters.
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/seasons');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/leagues/seasons", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/seasons',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/seasons\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/seasons \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/seasons")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+  /countries:
+    get:
+      summary: countries
+      tags:
+        - Countries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: countries
+                    parameters: []
+                    errors: []
+                    results: 31
+                    response:
+                      - id: 1
+                        name: Argentina
+                        code: AR
+                        flag: 'https://media.api-sports.io/flags/ar.svg'
+                      - id: 2
+                        name: Australia
+                        code: AU
+                        flag: 'https://media.api-sports.io/flags/au.svg'
+                      - id: 3
+                        name: Austria
+                        code: AT
+                        flag: 'https://media.api-sports.io/flags/at.svg'
+                      - id: 4
+                        name: Canada
+                        code: CA
+                        flag: 'https://media.api-sports.io/flags/ca.svg'
+                      - id: 5
+                        name: Czech-Republic
+                        code: CZ
+                        flag: 'https://media.api-sports.io/flags/cz.svg'
+                      - id: 6
+                        name: England
+                        code: GB
+                        flag: 'https://media.api-sports.io/flags/gb.svg'
+                      - id: 7
+                        name: France
+                        code: FR
+                        flag: 'https://media.api-sports.io/flags/fr.svg'
+                      - id: 8
+                        name: Georgia
+                        code: GE
+                        flag: 'https://media.api-sports.io/flags/ge.svg'
+                      - id: 9
+                        name: Germany
+                        code: DE
+                        flag: 'https://media.api-sports.io/flags/de.svg'
+                      - id: 10
+                        name: Ireland
+                        code: IR
+                        flag: 'https://media.api-sports.io/flags/ir.svg'
+                      - id: 11
+                        name: Italy
+                        code: IT
+                        flag: 'https://media.api-sports.io/flags/it.svg'
+                      - id: 12
+                        name: Japan
+                        code: JP
+                        flag: 'https://media.api-sports.io/flags/jp.svg'
+                      - id: 13
+                        name: Netherlands
+                        code: NL
+                        flag: 'https://media.api-sports.io/flags/nl.svg'
+                      - id: 14
+                        name: New-Zealand
+                        code: NZ
+                        flag: 'https://media.api-sports.io/flags/nz.svg'
+                      - id: 15
+                        name: Poland
+                        code: PL
+                        flag: 'https://media.api-sports.io/flags/pl.svg'
+                      - id: 16
+                        name: Portugal
+                        code: PT
+                        flag: 'https://media.api-sports.io/flags/pt.svg'
+                      - id: 17
+                        name: Romania
+                        code: RO
+                        flag: 'https://media.api-sports.io/flags/ro.svg'
+                      - id: 18
+                        name: Russia
+                        code: RU
+                        flag: 'https://media.api-sports.io/flags/ru.svg'
+                      - id: 19
+                        name: Scotland
+                        code: GB
+                        flag: 'https://media.api-sports.io/flags/gb.svg'
+                      - id: 20
+                        name: South-Africa
+                        code: ZA
+                        flag: 'https://media.api-sports.io/flags/za.svg'
+                      - id: 21
+                        name: Spain
+                        code: ES
+                        flag: 'https://media.api-sports.io/flags/es.svg'
+                      - id: 22
+                        name: USA
+                        code: US
+                        flag: 'https://media.api-sports.io/flags/us.svg'
+                      - id: 23
+                        name: Wales
+                        code: GB
+                        flag: 'https://media.api-sports.io/flags/gb.svg'
+                      - id: 24
+                        name: Australia-Oceania
+                        code: AU
+                        flag: 'https://media.api-sports.io/flags/au.svg'
+                      - id: 25
+                        name: Europe
+                        code: null
+                        flag: null
+                      - id: 26
+                        name: World
+                        code: null
+                        flag: null
+      operationId: get-countries
+      description: "Get the list of available countries.\n\n The `name`, `id` and `code` fields can be used in other endpoints as filters. \n\n> All the parameters of this endpoint can be used together."
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the country
+        - schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+          in: query
+          name: code
+          description: The code of the country
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/countries');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/countries", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/countries',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/countries\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/countries \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/countries")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available countries across all {seasons} and competitions
+            get("https://v1.rugby.api-sports.io/countries");
+
+            // Get all available countries from one id {id}
+            get("https://v1.rugby.api-sports.io/countries?id=1");
+
+            // Get all available countries from one country {name}
+            get("https://v1.rugby.api-sports.io/countries?name=england");
+
+            // Get all available countries from one country {code}
+            get("https://v1.rugby.api-sports.io/countries?code=fr");
+
+            // Allows you to search for a countries in relation to a country {name}
+            get("https://v1.rugby.api-sports.io/countries?search=engl");
+  /leagues:
+    get:
+      summary: leagues
+      tags:
+        - Leagues
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: leagues
+                    parameters:
+                      id: '3'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 3
+                        name: NRC
+                        type: League
+                        logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                        country:
+                          id: 2
+                          name: Australia
+                          code: AU
+                          flag: 'https://media.api-sports.io/flags/au.svg'
+                        seasons:
+                          - season: 2019
+                            current: false
+                            start: '2019-08-31'
+                            end: '2019-10-26'
+                          - season: 2018
+                            current: false
+                            start: '2018-09-01'
+                            end: '2018-10-27'
+                          - season: 2017
+                            current: false
+                            start: '2017-09-02'
+                            end: '2017-11-11'
+                          - season: 2016
+                            current: false
+                            start: '2016-08-27'
+                            end: '2016-10-22'
+                          - season: 2015
+                            current: false
+                            start: '2015-08-20'
+                            end: '2015-10-31'
+                          - season: 2014
+                            current: false
+                            start: '2014-08-21'
+                            end: '2014-11-01'
+      operationId: get-leagues
+      description: |-
+        Get the list of available leagues and cups.
+
+        The league `id` are **unique** in the API and leagues keep it across all `seasons`
+
+        > Most of the parameters of this endpoint can be used together.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the league
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the league
+        - schema:
+            type: integer
+          in: query
+          name: country_id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: country
+          description: The name of the country
+        - schema:
+            type: string
+            enum:
+              - league
+              - cup
+          in: query
+          name: type
+          description: The type of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: You rapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/leagues');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/leagues", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/leagues',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/leagues\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/leagues \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/leagues")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Allows to retrieve all the seasons available for a league/cup
+            get("https://v1.rugby.api-sports.io/leagues?id=3");
+
+            // Get all leagues from one league {name}
+            get("https://v1.rugby.api-sports.io/leagues?name=NRC");
+
+            // Get all leagues from one {country}
+            // You can find the available {country} by using the endpoint country
+            get("https://v1.rugby.api-sports.io/leagues?country=canada");
+
+            // Get all leagues from one country {code} (GB, FR, IT etc..)
+            // You can find the available country {code} by using the endpoint country
+            get("https://v1.rugby.api-sports.io/leagues?code=ca");
+
+            // Get all leagues from one {season}
+            // You can find the available {season} by using the endpoint seasons
+            get("https://v1.rugby.api-sports.io/leagues?season=2019");
+
+            // Get one league from one league {id} & {season}
+            get("https://v1.rugby.api-sports.io/leagues?season=2019&id=3");
+
+            // Allows you to search for a league in relation to a league {name} or {country}
+            get("https://v1.rugby.api-sports.io/leagues?search=NRC");
+            get("https://v1.rugby.api-sports.io/leagues?search=canada");
+
+            // Get all leagues from one {type}
+            get("https://v1.rugby.api-sports.io/leagues?type=league");
+
+            // It’s possible to make requests by mixing the available parameters
+            get("https://v1.rugby.api-sports.io/leagues?season=2019&country=canada&type=league");
+            get("https://v1.rugby.api-sports.io/leagues?team=134&season=2019");
+  /teams:
+    get:
+      summary: teams
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: teams
+                    parameters:
+                      id: '119'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 119
+                        name: Rouen Normandie
+                        logo: 'https://media.api-sports.io/rugby/teams/119.png'
+                        national: false
+                        founded: 2009
+                        arena:
+                          name: Stade Jean-mermoz
+                          capacity: 3000
+                          location: 'Rouen, France'
+                        country:
+                          id: 7
+                          name: France
+                          code: FR
+                          flag: 'https://media.api-sports.io/flags/fr.svg'
+      operationId: get-teams
+      description: |-
+        Get data about teams.
+
+        The team `id` are **unique** in the API and teams keep it among all the leagues/cups in which they participate.
+
+        > **This endpoint requires at least one parameter.**
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: The name of the team
+        - schema:
+            type: integer
+          in: query
+          name: country_id
+          description: The id of the country
+        - schema:
+            type: string
+          in: query
+          name: country
+          description: The name of the country
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/teams');\n$request->setRequestMethod('GET');\n$request->setQuery(new http\\QueryString(array(\n\t'id' => '119'\n)));\n\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/teams?id=119", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/teams',\n  qs: {id: '119'},\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/teams?id=119\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url 'https://v1.rugby.api-sports.io/teams?id=119' \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/teams?id=119")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get one team from one team {id}
+            get("https://v1.rugby.api-sports.io/teams?id=119");
+
+            // Get one team from one team {name}
+            get("https://v1.rugby.api-sports.io/teams?name=Rouen Normandie");
+
+            // Get all teams from one {league} & {season}
+            get("https://v1.rugby.api-sports.io/teams?league=3&season=2019");
+
+            // Allows you to search for a team in relation to a team {name} or {country}
+            get("https://v1.rugby.api-sports.io/teams?search=Rouen Normandie");
+            get("https://v1.rugby.api-sports.io/teams?search=France");
+  /teams/statistics:
+    get:
+      summary: teams/statistics
+      tags:
+        - Teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: teams/statistics
+                    parameters:
+                      team: '29'
+                      league: '3'
+                      season: '2019'
+                    errors: []
+                    results: 5
+                    response:
+                      country:
+                        id: 2
+                        name: Australia
+                        code: AU
+                        flag: 'https://media.api-sports.io/flags/au.svg'
+                      league:
+                        id: 3
+                        name: NRC
+                        type: League
+                        logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                        season: 2019
+                      team:
+                        id: 29
+                        name: Melbourne Rising
+                        logo: 'https://media.api-sports.io/rugby/teams/29.png'
+                      games:
+                        played:
+                          home: 4
+                          away: 3
+                          all: 7
+                        wins:
+                          home:
+                            total: 1
+                            percentage: '25.00'
+                          away:
+                            total: 1
+                            percentage: '33.33'
+                          all:
+                            total: 2
+                            percentage: '28.57'
+                        draws:
+                          home:
+                            total: 0
+                            percentage: '0.00'
+                          away:
+                            total: 0
+                            percentage: '0.00'
+                          all:
+                            total: 0
+                            percentage: '0.00'
+                        loses:
+                          home:
+                            total: 3
+                            percentage: '75.00'
+                          away:
+                            total: 2
+                            percentage: '66.67'
+                          all:
+                            total: 5
+                            percentage: '71.43'
+                      goals:
+                        for:
+                          total:
+                            home: 126
+                            away: 80
+                            all: 206
+                          average:
+                            home: '31.5'
+                            away: '26.7'
+                            all: '29.4'
+                        against:
+                          total:
+                            home: 123
+                            away: 88
+                            all: 211
+                          average:
+                            home: '30.8'
+                            away: '29.3'
+                            all: '30.1'
+      operationId: get-teams-statistics
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          required: true
+          description: The id of the league
+        - schema:
+            type: string
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          required: true
+          description: The id of the team
+        - schema:
+            type: string
+            pattern: YYYY-MM-DD
+          in: query
+          name: date
+          description: A date limit
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: ''
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/teams/statistics');\n$request->setRequestMethod('GET');\n$request->setQuery(new http\\QueryString(array(\n\t'season' => '2019',\n\t'team' => '29',\n\t'league' => '3'\n)));\n\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/teams/statistics?season=2019&team=29&league=3", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/teams/statistics',\n  qs: {season: '2019', team: '29', league: '3'},\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/teams/statistics?season=2019&team=29&league=3\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url 'https://v1.rugby.api-sports.io/teams/statistics?season=2019&team=29&league=3' \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/teams/statistics?season=2019&team=29&league=3")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all statistics for a {team} in a {league} & {season}
+            get("https://v1.rugby.api-sports.io/teams/statistics?league=3&team=29&season=2019");
+
+            //Get all statistics for a {team} in a {league} & {season} with a end {date}
+            get("https://v1.rugby.api-sports.io/teams/statistics?league=3&team=29&season=2019&date=2019-10-08");
+  /standings:
+    get:
+      summary: standings
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings
+                    parameters:
+                      league: '3'
+                      season: '2019'
+                    errors: []
+                    results: 1
+                    response:
+                      - - position: 1
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 33
+                            name: Western Force
+                            logo: 'https://media.api-sports.io/rugby/teams/33.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 6
+                              percentage: '85.71'
+                            draw:
+                              total: 0
+                              percentage: '0.00'
+                            lose:
+                              total: 1
+                              percentage: '14.29'
+                          goals:
+                            for: 285
+                            against: 213
+                          points: 28
+                          form: WWLWW
+                          description: Promotion - NRC (Play Offs)
+                        - position: 2
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 27
+                            name: Canberra Vikings
+                            logo: 'https://media.api-sports.io/rugby/teams/27.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 5
+                              percentage: '71.43'
+                            draw:
+                              total: 0
+                              percentage: '0.00'
+                            lose:
+                              total: 2
+                              percentage: '28.57'
+                          goals:
+                            for: 238
+                            against: 211
+                          points: 22
+                          form: WWWLW
+                          description: Promotion - NRC (Play Offs)
+                        - position: 3
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 28
+                            name: Fijian Drua
+                            logo: 'https://media.api-sports.io/rugby/teams/28.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 3
+                              percentage: '42.86'
+                            draw:
+                              total: 2
+                              percentage: '28.57'
+                            lose:
+                              total: 2
+                              percentage: '28.57'
+                          goals:
+                            for: 231
+                            against: 214
+                          points: 17
+                          form: WWLW
+                          description: Promotion - NRC (Play Offs)
+                        - position: 4
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 26
+                            name: Brisbane City
+                            logo: 'https://media.api-sports.io/rugby/teams/26.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 3
+                              percentage: '42.86'
+                            draw:
+                              total: 1
+                              percentage: '14.29'
+                            lose:
+                              total: 3
+                              percentage: '42.86'
+                          goals:
+                            for: 214
+                            against: 199
+                          points: 17
+                          form: WLLWL
+                          description: Promotion - NRC (Play Offs)
+                        - position: 5
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 30
+                            name: NSW Country Eagles
+                            logo: 'https://media.api-sports.io/rugby/teams/30.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 3
+                              percentage: '42.86'
+                            draw:
+                              total: 1
+                              percentage: '14.29'
+                            lose:
+                              total: 3
+                              percentage: '42.86'
+                          goals:
+                            for: 181
+                            against: 172
+                          points: 16
+                          form: LLWL
+                          description: null
+                        - position: 6
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 31
+                            name: Queensland Country
+                            logo: 'https://media.api-sports.io/rugby/teams/31.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 3
+                              percentage: '42.86'
+                            draw:
+                              total: 0
+                              percentage: '0.00'
+                            lose:
+                              total: 4
+                              percentage: '57.14'
+                          goals:
+                            for: 205
+                            against: 235
+                          points: 15
+                          form: LWWLL
+                          description: null
+                        - position: 7
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 29
+                            name: Melbourne Rising
+                            logo: 'https://media.api-sports.io/rugby/teams/29.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 2
+                              percentage: '28.57'
+                            draw:
+                              total: 0
+                              percentage: '0.00'
+                            lose:
+                              total: 5
+                              percentage: '71.43'
+                          goals:
+                            for: 206
+                            against: 211
+                          points: 11
+                          form: LLWWL
+                          description: null
+                        - position: 8
+                          stage: NRC
+                          group:
+                            name: Regular Season
+                          team:
+                            id: 32
+                            name: Sydney Rays
+                            logo: 'https://media.api-sports.io/rugby/teams/32.png'
+                          league:
+                            id: 3
+                            name: NRC
+                            type: League
+                            logo: 'https://media.api-sports.io/rugby/leagues/3.png'
+                            season: 2019
+                          country:
+                            id: 2
+                            name: Australia
+                            code: AU
+                            flag: 'https://media.api-sports.io/flags/au.svg'
+                          games:
+                            played: 7
+                            win:
+                              total: 1
+                              percentage: '14.29'
+                            draw:
+                              total: 0
+                              percentage: '0.00'
+                            lose:
+                              total: 6
+                              percentage: '85.71'
+                          goals:
+                            for: 220
+                            against: 325
+                          points: 6
+                          form: LLLLW
+                          description: null
+      operationId: get-standings
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          required: true
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: stage
+          description: A valid stage
+        - schema:
+            type: string
+          in: query
+          name: group
+          description: A valid group
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        Get the standings for a league.
+
+        Return a table of one or more rankings according to the league / cup. Some competitions have several rankings in a year, regular season, pre season etc…
+
+        To know the list of available stages or groups you have to use the endpoint standings/stages or standings/groups
+
+        > Standings are updated every hours
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/standings');\n$request->setRequestMethod('GET');\n$request->setQuery(new http\\QueryString(array(\n\t'league' => '3',\n\t'season' => '2019'\n)));\n\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/standings?league=3&season=2019", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/standings',\n  qs: {league: '3', season: '2019'},\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/standings?league=3&season=2019\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url 'https://v1.rugby.api-sports.io/standings?league=3&season=2019' \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/standings?league=3&season=2019")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all Standings from one {league} & {season}
+            get("https://v1.rugby.api-sports.io/standings?league=3&season=2019");
+
+            // Get all Standings from one {league} & {season} & {team}
+            get("https://v1.rugby.api-sports.io/standings?league=3&team=25&season=2019");
+
+            // Get all Standings from one {team} & {season}
+            get("https://v1.rugby.api-sports.io/standings?team=25&season=2019");
+
+            // Get all Standings from one {team} & {season} & {stage}
+            get("https://v1.rugby.api-sports.io/standings?league=3&season=2019&stage=NRC");
+
+            // Get all Standings from one {team} & {season} & {group}
+            get("https://v1.rugby.api-sports.io/standings?league=3&season=2019&group=Regular Season");
+
+            // Get all Standings from one {team} & {season} & {stage} & {group}
+            get("https://v1.rugby.api-sports.io/standings?league=3&season=2019&stage=NRC&group=Regular Season");
+  /standings/stages:
+    get:
+      summary: standings/stages
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings/stages
+                    parameters:
+                      league: '3'
+                      season: '2019'
+                    errors: []
+                    results: 1
+                    response:
+                      - NRC
+      operationId: get-standings-stages
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+          required: true
+        - schema:
+            type: string
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          required: true
+          description: The season of the league
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: Get the list of available stages for a league to be used in the standings endpoint.
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/standings/stages');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/leagues/standings/stages", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/standings/stages',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/standings/stages\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/standings/stages \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/standings/stages")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+  /standings/groups:
+    get:
+      summary: standings/groups
+      tags:
+        - Standings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: standings/groups
+                    parameters:
+                      league: '3'
+                      season: '2019'
+                    errors: []
+                    results: 6
+                    response:
+                      - Regular Season
+      operationId: get-standings-groups
+      description: Get the list of available groups for a league to be used in the standings endpoint.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+          required: true
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/standings/groups');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/leagues/standings/groups", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/standings/groups',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/standings/groups\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n--url https://v1.rugby.api-sports.io/standings/groups \\\n--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/standings/groups")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+  /games:
+    get:
+      summary: games
+      tags:
+        - Games
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: games
+                    parameters:
+                      id: '8279'
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 8279
+                        date: '2018-09-22T12:45:00+00:00'
+                        time: '12:45'
+                        timestamp: 1537620300
+                        timezone: UTC
+                        week: '5'
+                        status:
+                          long: Finished
+                          short: FT
+                        country:
+                          id: 7
+                          name: France
+                          code: FR
+                          flag: 'https://media.api-sports.io/flags/fr.svg'
+                        league:
+                          id: 16
+                          name: Top 14
+                          type: League
+                          logo: 'https://media.api-sports.io/rugby/leagues/16.png'
+                          season: 2018
+                        teams:
+                          home:
+                            id: 96
+                            name: Bordeaux Begles
+                            logo: 'https://media.api-sports.io/rugby/teams/96.png'
+                          away:
+                            id: 99
+                            name: Clermont
+                            logo: 'https://media.api-sports.io/rugby/teams/99.png'
+                        scores:
+                          home: 23
+                          away: 19
+                        periods:
+                          first:
+                            home: 13
+                            away: 9
+                          second:
+                            home: 10
+                            away: 10
+                          overtime:
+                            home: null
+                            away: null
+                          second_overtime:
+                            home: null
+                            away: null
+      operationId: get-games
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the game
+        - schema:
+            type: string
+          in: query
+          name: date
+          description: A valid date
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: team
+          description: The id of the team
+        - schema:
+            type: string
+          in: query
+          name: timezone
+          description: A valid timezone
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        For all requests to games you can add the query parameter `timezone` to your request in order to retrieve the list of games in the time zone of your choice like *“Europe/London“*
+
+        To know the list of available time zones you have to use the endpoint timezone.
+
+        **Available status**
+
+        * NS : Not Started
+        * AW : Awarded
+        * POST : Postponed
+        * CANC : Cancelled
+        * INTR : Interrupted
+        * ABD : Abandoned
+        * AET : After Extra Time
+        * FT : Finished
+
+        > Games are updated every 15 seconds
+
+        > **This endpoint requires at least one parameter.**
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://v1.rugby.api-sports.io/games');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'id' => '8279'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'v1.rugby.api-sports.io',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/games?id=8279", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://v1.rugby.api-sports.io/games',
+              qs: {id: '8279'},
+              headers: {
+                'x-rapidapi-host': 'v1.rugby.api-sports.io',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://v1.rugby.api-sports.io/games?id=8279", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "v1.rugby.api-sports.io",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://v1.rugby.api-sports.io/games?id=8279' \
+            	--header 'x-rapidapi-host: v1.rugby.api-sports.io' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/games?id=8279")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get games from one game {id}
+            get("https://v1.rugby.api-sports.io/games?id=8279");
+
+            // Get all available games from one {league} & {season}
+            get("https://v1.rugby.api-sports.io/games?league=3&season=2019");
+
+            // Get all available games from one {team} & {season}
+            get("https://v1.rugby.api-sports.io/games?team=367&season=2019");
+
+            // Get all available games from one {date}
+            get("https://v1.rugby.api-sports.io/games?date=2019-11-23");
+
+            // It’s possible to make requests by mixing the available parameters
+            get("https://v1.rugby.api-sports.io/games?date=2020-01-30&league=3&season=2019");
+            get("https://v1.rugby.api-sports.io/games?team=367&season=2019&date=2019-11-23");
+            get("https://v1.rugby.api-sports.io/games?league=3&season=2019&date=2019-11-23&timezone=Europe/london");
+  /games/h2h:
+    get:
+      summary: games/h2h
+      tags:
+        - Games
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: games/h2h
+                    parameters:
+                      h2h: 367-368
+                    errors: []
+                    results: 1
+                    response:
+                      - id: 3074
+                        date: '2019-08-31T03:00:00+00:00'
+                        time: '03:00'
+                        timestamp: 1567220400
+                        timezone: UTC
+                        week: null
+                        status:
+                          long: Finished
+                          short: FT
+                        country:
+                          id: 24
+                          name: Australia-Oceania
+                          code: AU
+                          flag: 'https://media.api-sports.io/flags/au.svg'
+                        league:
+                          id: 49
+                          name: Oceania Cup
+                          type: Cup
+                          logo: 'https://media.api-sports.io/rugby/leagues/49.png'
+                          season: 2019
+                        teams:
+                          home:
+                            id: 368
+                            name: Niue
+                            logo: 'https://media.api-sports.io/rugby/teams/368.png'
+                          away:
+                            id: 367
+                            name: Nauru
+                            logo: 'https://media.api-sports.io/rugby/teams/367.png'
+                        scores:
+                          home: 87
+                          away: 0
+                        periods:
+                          first:
+                            home: null
+                            away: null
+                          second:
+                            home: null
+                            away: null
+                          overtime:
+                            home: null
+                            away: null
+                          second_overtime:
+                            home: null
+                            away: null
+      operationId: get-games-h2h
+      parameters:
+        - schema:
+            type: string
+            pattern: id-id
+          in: query
+          name: h2h
+          description: The ids of the teams
+          required: true
+        - schema:
+            type: string
+            pattern: YYYY-MM-DD
+          in: query
+          name: date
+          description: A valid date
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            maxLength: 4
+            minLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: string
+          in: query
+          name: timezone
+          description: A valid timezone
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: Get heads to heads between two teams.
+      x-code-samples:
+        - lang: Php
+          source: |
+            $client = new http\Client;
+            $request = new http\Client\Request;
+
+            $request->setRequestUrl('https://v1.rugby.api-sports.io/games/h2h');
+            $request->setRequestMethod('GET');
+            $request->setQuery(new http\QueryString(array(
+            	'h2h' => '367-368'
+            )));
+
+            $request->setHeaders(array(
+            	'x-rapidapi-host' => 'v1.rugby.api-sports.io',
+            	'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'
+            ));
+
+            $client->enqueue($request)->send();
+            $response = $client->getResponse();
+
+            echo $response->getBody();
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/games/h2h?h2h=367-368", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: |
+            var request = require("request");
+
+            var options = {
+              method: 'GET',
+              url: 'https://v1.rugby.api-sports.io/games/h2h',
+              qs: {h2h: '367-368'},
+              headers: {
+                'x-rapidapi-host': 'v1.rugby.api-sports.io',
+                'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'
+              }
+            };
+
+            request(options, function (error, response, body) {
+            	if (error) throw new Error(error);
+
+            	console.log(body);
+            });
+        - lang: JavaScript
+          source: |
+            fetch("https://v1.rugby.api-sports.io/games/h2h?h2h=367-368", {
+            	"method": "GET",
+            	"headers": {
+            		"x-rapidapi-host": "v1.rugby.api-sports.io",
+            		"x-rapidapi-key": "XxXxXxXxXxXxXxXxXxXxXxXx"
+            	}
+            })
+            .then(response => {
+            	console.log(response);
+            })
+            .catch(err => {
+            	console.log(err);
+            });
+        - lang: Curl
+          source: |
+            curl --request GET \
+            	--url 'https://v1.rugby.api-sports.io/games/h2h?h2h=367-368' \
+            	--header 'x-rapidapi-host: v1.rugby.api-sports.io' \
+            	--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/games/h2h?h2h=367-368")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all h2h between two teams
+            get("https://v1.rugby.api-sports.io/games/h2h?h2h=367-368");
+
+            // Get all h2h between two teams from one {league} & {season}
+            get("https://v1.rugby.api-sports.io/games/h2h?h2h=367-368&league=35&season=2020");
+
+            // Get all h2h between two teams  from one {date}
+            get("https://v1.rugby.api-sports.io/games/h2h?h2h=367-368&date=2020-10-02");
+
+            // It’s possible to make requests by mixing the available parameters
+            get("https://v1.rugby.api-sports.io/games/h2h?h2h=367-3684&season=2020&date=2020-10-02&timezone=Europe/london");
+  /odds:
+    get:
+      summary: odds
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds
+                    parameters:
+                      game: '1107'
+                    errors: []
+                    results: 1
+                    response:
+                      - game:
+                          id: 1107
+                        league:
+                          id: 17
+                          name: Pro D2
+                          type: League
+                          logo: 'https://media.api-sports.io/rugby/leagues/17.png'
+                          season: 2020
+                        country:
+                          id: 7
+                          name: France
+                          code: FR
+                          flag: 'https://media.api-sports.io/flags/fr.svg'
+                        update: '2021-02-26T17:00:03+00:00'
+                        bookmakers:
+                          - id: 14
+                            name: bwin
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.33'
+                                  - value: Draw
+                                    odd: '21.00'
+                                  - value: Away
+                                    odd: '3.25'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -6.5
+                                    odd: '1.80'
+                                  - value: Away -6.5
+                                    odd: '1.91'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -7
+                                    odd: '1.91'
+                                  - value: Away -7
+                                    odd: '1.91'
+                                  - value: Draw -7
+                                    odd: '17.00'
+                          - id: 1
+                            name: Expekt
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '23.00'
+                                  - value: Away
+                                    odd: '3.80'
+                          - id: 2
+                            name: NordicBet
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.36'
+                                  - value: Draw
+                                    odd: '19.00'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 2
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.91'
+                                  - value: Away -7.5
+                                    odd: '1.85'
+                                  - value: Home -6.5
+                                    odd: '1.83'
+                                  - value: Away -6.5
+                                    odd: '1.95'
+                          - id: 3
+                            name: 10Bet
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.29'
+                                  - value: Draw
+                                    odd: '19.00'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.88'
+                                  - value: Away -7.5
+                                    odd: '1.80'
+                                  - value: Home -8.5
+                                    odd: '1.88'
+                                  - value: Away -8.5
+                                    odd: '1.80'
+                          - id: 4
+                            name: Bet365
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '23.00'
+                                  - value: Away
+                                    odd: '3.60'
+                              - id: 2
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.28'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.90'
+                                  - value: Away -7.5
+                                    odd: '1.80'
+                                  - value: Home -8.5
+                                    odd: '1.90'
+                                  - value: Away -8.5
+                                    odd: '1.80'
+                              - id: 5
+                                name: HT/FT Double
+                                values:
+                                  - value: Draw/Draw
+                                    odd: '67.00'
+                                  - value: US Montauban/US Montauban
+                                    odd: '4.75'
+                                  - value: US Montauban/Draw
+                                    odd: '41.00'
+                                  - value: Draw/US Montauban
+                                    odd: '29.00'
+                                  - value: Stade Aurillacois/Stade Aurillacois
+                                    odd: '1.61'
+                                  - value: Stade Aurillacois/Draw
+                                    odd: '41.00'
+                                  - value: Draw/Stade Aurillacois
+                                    odd: '17.00'
+                                  - value: US Montauban/Stade Aurillacois
+                                    odd: '6.50'
+                                  - value: Stade Aurillacois/US Montauban
+                                    odd: '12.00'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -7
+                                    odd: '1.90'
+                                  - value: Away -7
+                                    odd: '1.90'
+                                  - value: Draw -7
+                                    odd: '17.00'
+                                  - value: Home -8
+                                    odd: '1.90'
+                                  - value: Away -8
+                                    odd: '1.90'
+                                  - value: Draw -8
+                                    odd: '17.00'
+                          - id: 5
+                            name: Marathon
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.36'
+                                  - value: Draw
+                                    odd: '24.00'
+                                  - value: Away
+                                    odd: '3.30'
+                              - id: 3
+                                name: 2nd Half 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.47'
+                                  - value: Draw
+                                    odd: '14.00'
+                                  - value: Away
+                                    odd: '2.78'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -4.5
+                                    odd: '1.57'
+                                  - value: Away -4.5
+                                    odd: '2.22'
+                                  - value: Home -5.5
+                                    odd: '1.62'
+                                  - value: Away -5.5
+                                    odd: '2.13'
+                                  - value: Home -7.5
+                                    odd: '1.83'
+                                  - value: Away -7.5
+                                    odd: '1.87'
+                                  - value: Home -8.5
+                                    odd: '1.89'
+                                  - value: Away -8.5
+                                    odd: '1.81'
+                                  - value: Home -10.5
+                                    odd: '2.15'
+                                  - value: Away -10.5
+                                    odd: '1.61'
+                                  - value: Home -11.5
+                                    odd: '2.24'
+                                  - value: Away -11.5
+                                    odd: '1.56'
+                              - id: 5
+                                name: HT/FT Double
+                                values:
+                                  - value: Draw/Draw
+                                    odd: '86.00'
+                                  - value: US Montauban/US Montauban
+                                    odd: '4.55'
+                                  - value: US Montauban/Draw
+                                    odd: '46.00'
+                                  - value: Draw/US Montauban
+                                    odd: '29.00'
+                                  - value: Stade Aurillacois/Stade Aurillacois
+                                    odd: '1.60'
+                                  - value: Stade Aurillacois/Draw
+                                    odd: '46.00'
+                                  - value: Draw/Stade Aurillacois
+                                    odd: '17.25'
+                                  - value: US Montauban/Stade Aurillacois
+                                    odd: '6.65'
+                                  - value: Stade Aurillacois/US Montauban
+                                    odd: '11.25'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -5
+                                    odd: '1.68'
+                                  - value: Away -5
+                                    odd: '2.22'
+                                  - value: Draw -5
+                                    odd: '25.00'
+                                  - value: Home -6
+                                    odd: '1.74'
+                                  - value: Away -6
+                                    odd: '2.13'
+                                  - value: Draw -6
+                                    odd: '24.00'
+                                  - value: Home -8
+                                    odd: '1.96'
+                                  - value: Away -8
+                                    odd: '1.87'
+                                  - value: Draw -8
+                                    odd: '24.00'
+                                  - value: Home -9
+                                    odd: '2.04'
+                                  - value: Away -9
+                                    odd: '1.81'
+                                  - value: Draw -9
+                                    odd: '23.00'
+                              - id: 8
+                                name: 1st Half 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.50'
+                                  - value: Draw
+                                    odd: '10.75'
+                                  - value: Away
+                                    odd: '2.84'
+                              - id: 9
+                                name: Handicap Result 1st Half
+                                values:
+                                  - value: Home -4
+                                    odd: '1.99'
+                                  - value: Away -4
+                                    odd: '1.83'
+                                  - value: Draw -4
+                                    odd: '16.25'
+                              - id: 10
+                                name: Asian Handicap First Half
+                                values:
+                                  - value: Home -3.5
+                                    odd: '1.85'
+                                  - value: Away -3.5
+                                    odd: '1.83'
+                              - id: 11
+                                name: Odd/Even
+                                values:
+                                  - value: Odd
+                                    odd: '1.85'
+                                  - value: Even
+                                    odd: '1.83'
+                              - id: 16
+                                name: Asian Handicap (2nd Half)
+                                values:
+                                  - value: Home -4.5
+                                    odd: '1.91'
+                                  - value: Away -4.5
+                                    odd: '1.78'
+                                  - value: Home -3.5
+                                    odd: '1.80'
+                                  - value: Away -3.5
+                                    odd: '1.88'
+                              - id: 19
+                                name: European Handicap (2nd Half)
+                                values:
+                                  - value: Home -4
+                                    odd: '1.92'
+                                  - value: Away -4
+                                    odd: '1.88'
+                                  - value: Draw -4
+                                    odd: '17.25'
+                                  - value: Home -5
+                                    odd: '2.05'
+                                  - value: Away -5
+                                    odd: '1.78'
+                                  - value: Draw -5
+                                    odd: '16.50'
+                          - id: 6
+                            name: Unibet
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '26.00'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 2
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.29'
+                                  - value: Away
+                                    odd: '3.40'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.93'
+                                  - value: Away -7.5
+                                    odd: '1.81'
+                                  - value: Home -8.5
+                                    odd: '1.92'
+                                  - value: Away -8.5
+                                    odd: '1.82'
+                                  - value: Home +7.5
+                                    odd: '1.90'
+                                  - value: Away +7.5
+                                    odd: '1.90'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -7
+                                    odd: '1.89'
+                                  - value: Away -7
+                                    odd: '1.89'
+                                  - value: Draw -7
+                                    odd: '23.00'
+                                  - value: Home -8
+                                    odd: '1.88'
+                                  - value: Away -8
+                                    odd: '1.88'
+                                  - value: Draw -8
+                                    odd: '25.00'
+                          - id: 7
+                            name: Betsson
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.36'
+                                  - value: Draw
+                                    odd: '19.00'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 2
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.91'
+                                  - value: Away -7.5
+                                    odd: '1.85'
+                                  - value: Home -6.5
+                                    odd: '1.83'
+                                  - value: Away -6.5
+                                    odd: '1.95'
+                          - id: 15
+                            name: Sportingbet
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.33'
+                                  - value: Draw
+                                    odd: '21.00'
+                                  - value: Away
+                                    odd: '3.25'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -6.5
+                                    odd: '1.80'
+                                  - value: Away -6.5
+                                    odd: '1.91'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -7
+                                    odd: '1.91'
+                                  - value: Away -7
+                                    odd: '1.91'
+                                  - value: Draw -7
+                                    odd: '17.00'
+                          - id: 12
+                            name: Betway
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '23.00'
+                                  - value: Away
+                                    odd: '3.80'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -0.5
+                                    odd: '1.33'
+                                  - value: Away -0.5
+                                    odd: '3.00'
+                                  - value: Home -1.5
+                                    odd: '1.35'
+                                  - value: Away -1.5
+                                    odd: '3.00'
+                                  - value: Home +4.5
+                                    odd: '1.12'
+                                  - value: Away +4.5
+                                    odd: '5.50'
+                                  - value: Home -7.5
+                                    odd: '1.83'
+                                  - value: Away -7.5
+                                    odd: '1.90'
+                                  - value: Home -6.5
+                                    odd: '1.80'
+                                  - value: Away -6.5
+                                    odd: '1.90'
+                                  - value: Home -12.5
+                                    odd: '2.75'
+                                  - value: Away -12.5
+                                    odd: '1.38'
+                                  - value: Home -13.5
+                                    odd: '2.75'
+                                  - value: Away -13.5
+                                    odd: '1.38'
+                                  - value: Home -18.5
+                                    odd: '4.75'
+                                  - value: Away -18.5
+                                    odd: '1.15'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -1
+                                    odd: '1.33'
+                                  - value: Away -1
+                                    odd: '3.20'
+                                  - value: Draw -1
+                                    odd: '28.00'
+                                  - value: Home -6
+                                    odd: '1.75'
+                                  - value: Away -6
+                                    odd: '2.00'
+                                  - value: Draw -6
+                                    odd: '23.00'
+                                  - value: Home -7
+                                    odd: '1.80'
+                                  - value: Away -7
+                                    odd: '2.00'
+                                  - value: Draw -7
+                                    odd: '23.00'
+                                  - value: Home -12
+                                    odd: '2.60'
+                                  - value: Away -12
+                                    odd: '1.44'
+                                  - value: Draw -12
+                                    odd: '26.00'
+                                  - value: Home +5
+                                    odd: '1.10'
+                                  - value: Away +5
+                                    odd: '5.50'
+                                  - value: Draw +5
+                                    odd: '36.00'
+                                  - value: Home -13
+                                    odd: '2.75'
+                                  - value: Away -13
+                                    odd: '1.44'
+                                  - value: Draw -13
+                                    odd: '26.00'
+                                  - value: Home -19
+                                    odd: '4.50'
+                                  - value: Away -19
+                                    odd: '1.15'
+                                  - value: Draw -19
+                                    odd: '36.00'
+                              - id: 7
+                                name: Highest Scoring Half
+                                values:
+                                  - value: Draw
+                                    odd: '21.00'
+                                  - value: 1st Half
+                                    odd: '1.90'
+                                  - value: 2nd Half
+                                    odd: '1.90'
+                              - id: 8
+                                name: 1st Half 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.50'
+                                  - value: Draw
+                                    odd: '13.00'
+                                  - value: Away
+                                    odd: '2.75'
+                              - id: 10
+                                name: Asian Handicap First Half
+                                values:
+                                  - value: Home +2.5
+                                    odd: '1.25'
+                                  - value: Away +2.5
+                                    odd: '3.50'
+                                  - value: Home -3.5
+                                    odd: '1.83'
+                                  - value: Away -3.5
+                                    odd: '1.90'
+                                  - value: Home -9.5
+                                    odd: '3.20'
+                                  - value: Away -9.5
+                                    odd: '1.30'
+                              - id: 20
+                                name: Draw No Bet (1st Half)
+                                values:
+                                  - value: Home
+                                    odd: '1.44'
+                                  - value: Away
+                                    odd: '2.75'
+                          - id: 13
+                            name: Betcris
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '23.00'
+                                  - value: Away
+                                    odd: '3.80'
+                          - id: 8
+                            name: 888Sport
+                            bets:
+                              - id: 1
+                                name: 3Way Result
+                                values:
+                                  - value: Home
+                                    odd: '1.30'
+                                  - value: Draw
+                                    odd: '26.00'
+                                  - value: Away
+                                    odd: '3.50'
+                              - id: 2
+                                name: Home/Away
+                                values:
+                                  - value: Home
+                                    odd: '1.29'
+                                  - value: Away
+                                    odd: '3.40'
+                              - id: 4
+                                name: Asian Handicap
+                                values:
+                                  - value: Home -7.5
+                                    odd: '1.93'
+                                  - value: Away -7.5
+                                    odd: '1.81'
+                                  - value: Home -8.5
+                                    odd: '1.92'
+                                  - value: Away -8.5
+                                    odd: '1.82'
+                              - id: 6
+                                name: Handicap Result
+                                values:
+                                  - value: Home -7
+                                    odd: '1.89'
+                                  - value: Away -7
+                                    odd: '1.89'
+                                  - value: Draw -7
+                                    odd: '23.00'
+                                  - value: Home -8
+                                    odd: '1.88'
+                                  - value: Away -8
+                                    odd: '1.88'
+                                  - value: Draw -8
+                                    odd: '25.00'
+      operationId: get-odds
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: league
+          description: The id of the league
+        - schema:
+            type: integer
+            minLength: 4
+            maxLength: 4
+          in: query
+          name: season
+          description: The season of the league
+        - schema:
+            type: integer
+          in: query
+          name: game
+          description: The id of the game
+        - schema:
+            type: integer
+          in: query
+          name: bookmaker
+          description: The id of the bookmaker
+        - schema:
+            type: integer
+          in: query
+          name: bet
+          description: The id of the bet
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      description: |-
+        Get odds from games or leagues.
+
+        We provide pre-match odds between 1 and 7 days before the game.
+
+        We keep a 7-day history *(The availability of odds may vary according to the leagues, seasons, games and bookmakers)*
+
+        > Odds are updated once a day
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/odds');\n$request->setRequestMethod('GET');\n$request->setQuery(new http\\QueryString(array(\n\t'game' => '1107'\n)));\n\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/odds?game=1107", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/odds',\n  qs: {game: '1107'},\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/odds?game=1107\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url 'https://v1.rugby.api-sports.io/odds?game=1107' \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/odds?game=1107")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available odds from one {game}
+            get("https://v1.rugby.api-sports.io/odds?game=1107");
+
+            // Get all available odds from one {league} & {season}
+            get("https://v1.rugby.api-sports.io/odds?league=49&season=2020");
+
+            // It’s possible to make requests by mixing the available parameters
+            get("https://v1.rugby.api-sports.io/odds?bookmaker=1&bet=4&league=49&season=2020");
+            get("https://v1.rugby.api-sports.io/odds?bet=4&game=11590");
+            get("https://v1.rugby.api-sports.io/odds?bookmaker=1&league=49&season=2020");
+  /odds/bets:
+    get:
+      summary: odds/bets
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds/bets
+                    parameters: []
+                    errors: []
+                    results: 36
+                    response:
+                      - id: 1
+                        name: 3Way Result
+                      - id: 2
+                        name: Home/Away
+                      - id: 3
+                        name: 2nd Half 3Way Result
+                      - id: 4
+                        name: Asian Handicap
+                      - id: 5
+                        name: HT/FT Double
+                      - id: 6
+                        name: Handicap Result
+                      - id: 7
+                        name: Highest Scoring Half
+                      - id: 8
+                        name: 1st Half 3Way Result
+                      - id: 9
+                        name: Handicap Result 1st Half
+                      - id: 10
+                        name: Asian Handicap First Half
+                      - id: 11
+                        name: Odd/Even
+                      - id: 12
+                        name: Home win both halves
+                      - id: 13
+                        name: Away win both halves
+                      - id: 14
+                        name: First Team to Score
+                      - id: 15
+                        name: Last Team to Score
+                      - id: 16
+                        name: Asian Handicap (2nd Half)
+                      - id: 17
+                        name: Home/Away - 1st Half
+                      - id: 18
+                        name: Home/Away - 2nd Half
+                      - id: 19
+                        name: European Handicap (2nd Half)
+                      - id: 20
+                        name: Draw No Bet (1st Half)
+                      - id: 21
+                        name: Home Trail in Match
+                      - id: 22
+                        name: Away Trail in Match
+                      - id: 23
+                        name: Over/Under 1st Half
+                      - id: 24
+                        name: Over/Under
+                      - id: 25
+                        name: Over/Under 2nd Half
+                      - id: 26
+                        name: Total - Home
+                      - id: 27
+                        name: Total - Away
+                      - id: 28
+                        name: Number of Tries
+                      - id: 29
+                        name: Home Team Total Tries
+                      - id: 30
+                        name: Away Team Total Tries
+                      - id: 31
+                        name: Home Team Total Goals(1st Half)
+                      - id: 32
+                        name: Away Team Total Goals(1st Half)
+                      - id: 33
+                        name: Home Team Total Goals(2nd Half)
+                      - id: 34
+                        name: Away Team Total Goals(2nd Half)
+                      - id: 35
+                        name: Number of Tries 1st Half
+                      - id: 36
+                        name: Number of Tries 2nd Half
+      operationId: get-odds-bets
+      description: |-
+        Get all available bets.
+
+        All bets `id` can be used in endpoint odds as filters
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the bet
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: The name of the bet
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/bets');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/bets", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/bets',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/bets\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url https://v1.rugby.api-sports.io/bets \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/bets")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available bets
+            get("https://v1.rugby.api-sports.io/bets");
+
+            // Get bet from one {id}
+            get("https://v1.rugby.api-sports.io/bets?id=1");
+
+            // Allows you to search for a bet in relation to a bet {name}
+            get("https://v1.rugby.api-sports.io/bets?search=3Way Result");
+  /odds/bookmakers:
+    get:
+      summary: odds/bookmakers
+      tags:
+        - Odds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value:
+                    get: odds/bookmakers
+                    parameters: []
+                    errors: []
+                    results: 15
+                    response:
+                      - id: 1
+                        name: Expekt
+                      - id: 2
+                        name: NordicBet
+                      - id: 3
+                        name: 10Bet
+                      - id: 4
+                        name: Bet365
+                      - id: 5
+                        name: Marathon
+                      - id: 6
+                        name: Unibet
+                      - id: 7
+                        name: Betsson
+                      - id: 8
+                        name: 888Sport
+                      - id: 9
+                        name: Pinnacle
+                      - id: 10
+                        name: Sbo
+                      - id: 11
+                        name: Dafabet
+                      - id: 12
+                        name: Betway
+                      - id: 13
+                        name: Betcris
+                      - id: 14
+                        name: Bwin
+                      - id: 15
+                        name: Sportingbet
+      operationId: get-odds-bookmakers
+      description: |-
+        Get all available bookmakers.
+
+        All bookmakers `id` can be used in endpoint odds as filters.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: id
+          description: The id of the bookmaker
+        - schema:
+            type: string
+            minLength: 3
+          in: query
+          name: search
+          description: The name of the bookmaker
+        - schema:
+            type: string
+          in: header
+          name: x-rapidapi-key
+          description: Your RapidAPI Key
+          required: true
+      x-code-samples:
+        - lang: Php
+          source: "$client = new http\\Client;\n$request = new http\\Client\\Request;\n\n$request->setRequestUrl('https://v1.rugby.api-sports.io/bookmakers');\n$request->setRequestMethod('GET');\n$request->setHeaders(array(\n\t'x-rapidapi-host' => 'v1.rugby.api-sports.io',\n\t'x-rapidapi-key' => 'XxXxXxXxXxXxXxXxXxXxXxXx'\n));\n\n$client->enqueue($request)->send();\n$response = $client->getResponse();\n\necho $response->getBody();\n"
+        - lang: Python
+          source: |
+            import http.client
+
+            conn = http.client.HTTPSConnection("v1.rugby.api-sports.io")
+
+            headers = {
+                'x-rapidapi-host': "v1.rugby.api-sports.io",
+                'x-rapidapi-key': "XxXxXxXxXxXxXxXxXxXxXxXx"
+                }
+
+            conn.request("GET", "/bookmakers", headers=headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+        - lang: Node
+          source: "var request = require(\"request\");\n\nvar options = {\n  method: 'GET',\n  url: 'https://v1.rugby.api-sports.io/bookmakers',\n  headers: {\n    'x-rapidapi-host': 'v1.rugby.api-sports.io',\n    'x-rapidapi-key': 'XxXxXxXxXxXxXxXxXxXxXxXx'\n  }\n};\n\nrequest(options, function (error, response, body) {\n\tif (error) throw new Error(error);\n\n\tconsole.log(body);\n});\n"
+        - lang: JavaScript
+          source: "fetch(\"https://v1.rugby.api-sports.io/bookmakers\", {\n\t\"method\": \"GET\",\n\t\"headers\": {\n\t\t\"x-rapidapi-host\": \"v1.rugby.api-sports.io\",\n\t\t\"x-rapidapi-key\": \"XxXxXxXxXxXxXxXxXxXxXxXx\"\n\t}\n})\n.then(response => {\n\tconsole.log(response);\n})\n.catch(err => {\n\tconsole.log(err);\n});\n"
+        - lang: Curl
+          source: "curl --request GET \\\n\t--url https://v1.rugby.api-sports.io/bookmakers \\\n\t--header 'x-rapidapi-host: v1.rugby.api-sports.io' \\\n\t--header 'x-rapidapi-key: XxXxXxXxXxXxXxXxXxXxXxXx'\n"
+        - lang: Ruby
+          source: |
+            require 'uri'
+            require 'net/http'
+            require 'openssl'
+
+            url = URI("https://v1.rugby.api-sports.io/bookmakers")
+
+            http = Net::HTTP.new(url.host, url.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+            request = Net::HTTP::Get.new(url)
+            request["x-rapidapi-host"] = 'v1.rugby.api-sports.io'
+            request["x-rapidapi-key"] = 'XxXxXxXxXxXxXxXxXxXxXxXx'
+
+            response = http.request(request)
+            puts response.read_body
+        - lang: Use Cases
+          source: |
+            // Get all available bookmakers
+            get("https://v1.rugby.api-sports.io/bookmakers");
+
+            // Get bookmaker from one {id}
+            get("https://v1.rugby.api-sports.io/bookmakers?id=1");
+
+            // Allows you to search for a bookmaker in relation to a bookmakers {name}
+            get("https://v1.rugby.api-sports.io/bookmakers?search=Betfair");
+components:
+  schemas: {}
+
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - Timezone
+      - Seasons
+      - Countries
+      - Leagues
+      - Teams
+      - Standings
+      - Games
+      - Odds
