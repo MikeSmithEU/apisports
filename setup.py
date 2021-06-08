@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='apisports',
-    url='https://github.com/MikeSmithcode/apisports/',
+    url='https://github.com/MikeSmith/apisports/',
     version=VERSION,
     author='MikeSmithEU',
     author_email='projects@mikesmith.eu',
