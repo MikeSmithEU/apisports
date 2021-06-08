@@ -20,7 +20,7 @@ class AbstractResponse:
     ok = False
     """
     Whether the request has completed without errors.
-    
+
     :type: bool
     """
 

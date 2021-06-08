@@ -1,4 +1,4 @@
-.PHONY: docs test clean env clean
+.PHONY: docs test clean env clean setuptools pypi
 
 PYTHON:=$(shell test -e env/bin/activate && echo "env/bin/python" || echo "python3")
 
@@ -17,3 +17,11 @@ docs:
 
 clean:
 	cd docs/ && make clean
+
+setuptools: env
+	$(PYTHON) -m pip install --upgrade setuptools wheel
+
+pypi: env setuptools test
+	$(PYTHON) setup.py sdist bdist_wheel
+	$(PYTHON) -m pip install --user --upgrade twine
+	$(PYTHON) -m twine upload dist/*
