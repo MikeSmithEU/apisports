@@ -2,7 +2,7 @@ from ._client import ClientMeta, Client
 
 
 def _client_class(kind, version=None):
-    return type(kind, (Client,), ClientMeta.get_endpoints(kind.lower(), version=version))
+    return type(kind, (Client,), ClientMeta.get(kind.lower(), version=version))
 
 
 Football = _client_class('Football', 3)

@@ -1,5 +1,7 @@
-Available Classes
-=================
+Sports Classes
+==============
+
+.. _sports-classes:
 
 .. py:currentmodule:: apisports
 
@@ -11,7 +13,7 @@ Baseball
    :members:
 
 Basketball
---------
+----------
 
 .. autoclass:: Basketball
    :members:
@@ -29,7 +31,7 @@ Formula1
    :members:
 
 Rugby
---------
+-----
 
 .. autoclass:: Rugby
    :members:

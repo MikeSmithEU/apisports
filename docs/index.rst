@@ -3,8 +3,9 @@
 .. toctree::
    :maxdepth: 3
 
-   classes
+   sports-classes
    response
+   data
    license
 
 
