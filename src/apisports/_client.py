@@ -50,8 +50,8 @@ class ClientMeta:
     def get(cls, kind, version=None):
         if version is None:
             version = '1'
-        filename = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-                                'resources', f'{kind}-v{version}.yaml')
+        filename = os.path.join(os.path.dirname(__file__),
+                                'data', f'{kind}-v{version}.yaml')
         try:
             with open(filename, 'r') as stream:
                 config = yaml.safe_load(stream)

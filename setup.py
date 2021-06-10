@@ -9,6 +9,9 @@ with open('README.rst') as f:
 with open('requirements.txt') as f:
     requirements = list(map(str.rstrip, f.readlines()))
 
+with open('requirements.test.txt') as f:
+    requirements_test = list(map(str.rstrip, f.readlines()))
+
 setup(
     name='apisports',
     url='https://github.com/MikeSmithEU/apisports/',
@@ -24,11 +27,10 @@ setup(
     python_requires='>=3.4',
     packages=find_packages("src"),
     package_dir={"": "src"},
+    package_data={'apisports': ['data/*.yaml']},
     install_requires=requirements,
     extras_require={
-        'test': [
-            "pytest>=4.2.0"
-        ],
+        'test': requirements_test,
     },
     platforms='any'
 )

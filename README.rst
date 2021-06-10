@@ -1,6 +1,18 @@
 ApiSports
 ---------
 
+
+.. image:: https://img.shields.io/github/license/MikeSmithEU/apisports.svg
+    :target: https://github.com/MikeSmithEU/apisports/blob/main/LICENSE
+
+.. image:: https://img.shields.io/github/workflow/status/MikeSmithEU/apisports/Python%20package
+    :alt: GitHub Workflow Status (branch)
+    :target: https://github.com/MikeSmithEU/apisports/actions
+
+.. image:: https://readthedocs.org/projects/apisports/badge/?version=latest
+    :target: https://apisports.readthedocs.io/
+    :alt: Documentation Status
+
 A simple python library for easy querying of APISports data.
 
 Example usage
