@@ -22,9 +22,10 @@ setup(
     long_description=long_description,
     classifiers=[
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
-    python_requires='>=3.4',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
     packages=find_packages("src"),
     package_dir={"": "src"},
     package_data={'apisports': ['data/*.yaml']},

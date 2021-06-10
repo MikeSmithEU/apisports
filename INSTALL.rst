@@ -3,7 +3,7 @@ Installation
 
 .. note::
 
-    Assumes Python_ 3.4 or greater is already installed on the system.
+    Assumes Python_ 3.5 or greater is already installed on the system.
 
 Versions are published on PyPi_ and can be easily installed using ``pip``, this will also install all requirements::
 
