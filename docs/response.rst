@@ -15,3 +15,4 @@ access directly by calling the ``data()`` method.
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __iter__, __len__

@@ -11,7 +11,26 @@ class ClientInitError(ImportError):
 
 
 class Client:
+    """
+
+    :param host: Host to call the api on, should contain "{endpoint}" which will be replaced by the proper url for
+    each different endpoint
+
+    :type host: Union[str, None] Will use ``default_host`` if `None`
+
+    :param api_key: The API key to use for requests.
+    :type api_key: str
+
+    :param session: The `requests` session to use, if None given, a new session will be used.
+    :type session: :class:`Session <requests.Session>` object
+    """
+
     default_host = ''
+    """
+    Default host to call the api on.
+
+    :type: str
+    """
 
     def __init__(self, host=None, api_key=None, session=None):
         if host is None:
@@ -27,11 +46,26 @@ class Client:
         }
 
     def status(self):
+        """
+        This call allows you to:
+
+        * To follow your consumption in real time
+        * Manage your subscription and change it if necessary
+        * Check the status of our servers
+        * Test all endpoints without writing a line of code.
+
+        .. note::
+            This call does not count against the daily quota.
+
+        :return: :class:`AbstractResponse <apisports.response.AbstractResponse>` object
+        :rtype: apisports.response.AbstractResponse
+        """
+
         return self.get('status')
 
     def get(self, endpoint, params=None):
         """
-        :return: :class:`Response <apisports.response.AbstractResponse>` object
+        :return: :class:`AbstractResponse <apisports.response.AbstractResponse>` object
         :rtype: apisports.response.AbstractResponse
         """
 
@@ -93,6 +127,6 @@ class ClientMeta:
                     type=p['schema']['type'],
                 )
 
-        _.__doc__ += '\n:return: :class:`Response <apisports._client.Response>` object'
+        _.__doc__ += '\n:return: :class:`AbstractResponse <apisports.response.AbstractResponse>` object'
         _.__doc__ += '\n:rtype: apisports.response.AbstractResponse'
         return _

@@ -13,7 +13,7 @@ class AbstractResponse:
     :param response: :class:`Response <requests.Response>` object
     :type response: requests.Response
 
-    :param data: The data object returned by the APO call
+    :param data: The data object returned by the API call
     :type data: Union[None, dict]
     """
 
@@ -38,7 +38,7 @@ class AbstractResponse:
         :param response: :class:`Response <requests.Response>` object
         :type response: requests.Response
 
-        :return: :class:`Response <apisports.response.AbstractResponse>` object
+        :return: :class:`AbstractResponse <apisports.response.AbstractResponse>` object
         :rtype: AbstractResponse
         """
 
@@ -59,9 +59,9 @@ class AbstractResponse:
 
     def data(self):
         """
-        Get the :class:`AbstractData <qpisports.data.AbstractData>` object.
+        Get the :class:`AbstractData <apisports.data.AbstractData>` object.
 
-        :return: :class:`AbstractData <qpisports.data.AbstractData>` object
+        :return: :class:`AbstractData <apisports.data.AbstractData>` object
         :rtype: AbstractData
         """
 
