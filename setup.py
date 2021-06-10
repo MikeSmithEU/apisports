@@ -1,16 +1,23 @@
 from setuptools import setup, find_packages
 
-with open('VERSION') as f:
-    VERSION = f.read().strip()
 
-with open('README.rst') as f:
-    long_description = f.read()
+def contents(file_name):
+    with open(file_name, encoding='UTF-8') as f:
+        txt = f.read().strip()
+    return txt
 
-with open('requirements.txt') as f:
-    requirements = list(map(str.rstrip, f.readlines()))
 
-with open('requirements.test.txt') as f:
-    requirements_test = list(map(str.rstrip, f.readlines()))
+def contents_list(file_name):
+    with open(file_name, encoding='UTF-8') as f:
+        ls = list(map(str.rstrip, f.readlines()))
+    return ls
+
+
+VERSION = contents('VERSION')
+long_description = contents('README.rst')
+
+requirements = contents_list('requirements.txt')
+requirements_test = contents_list('requirements.test.txt')
 
 setup(
     name='apisports',

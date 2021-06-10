@@ -53,7 +53,7 @@ class ClientMeta:
         filename = os.path.join(os.path.dirname(__file__),
                                 'data', f'{kind}-v{version}.yaml')
         try:
-            with open(filename, 'r') as stream:
+            with open(filename, encoding='UTF-8') as stream:
                 config = yaml.safe_load(stream)
 
             return {
