@@ -14,11 +14,21 @@ class AbstractData:
         :return: :class:`AbstractData` object
         :rtype: AbstractData
         """
+        if 'response' not in data:
+            return NoneData
+
         response = data['response']
+        if response is None:
+            return NoneData
+
         if 'paging' in data and \
                 data['paging']['total'] > 1 and \
                 data['paging']['current'] == 1:
             return PagedData(client, data)
+
+        if type(response) is not list:
+            return SingleData(response)
+
         length = len(response)
         if length == 0:
             return NoneData
@@ -76,13 +86,28 @@ class SimpleData(AbstractData):
         )
 
 
-class SingleData(SimpleData):
+class SingleData(AbstractData):
     """
     Adds an extra method to easily access data that only contains a single item.
     """
 
+    def __init__(self, data):
+        self._data = data
+
+    def __iter__(self):
+        return iter([self._data])
+
+    def __len__(self):
+        return 1
+
     def item(self):
-        return next(iter(self))
+        return self._data
+
+    def __repr__(self):
+        return '{cls}({data})'.format(
+            cls=str(self.__class__.__name__),
+            data=repr(self._data)
+        )
 
 
 class PagedData(AbstractData):
