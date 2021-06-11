@@ -80,12 +80,13 @@ class Client:
 
 
 class ClientMeta:
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+
     @classmethod
     def get(cls, kind, version=None):
         if version is None:
-            version = '1'
-        filename = os.path.join(os.path.dirname(__file__),
-                                'data', f'{kind}-v{version}.yaml')
+            version = 1
+        filename = os.path.join(cls.data_dir, f'{kind}-v{version}.yaml')
         try:
             with open(filename, encoding='UTF-8') as stream:
                 config = yaml.safe_load(stream)
@@ -96,13 +97,18 @@ class ClientMeta:
                     p['get']['operationId'][4:].replace('-', '_'): cls._get_method(
                         class_name=kind,
                         name=p['get']['operationId'][4:].replace('-', '_'),
-                        description=p['get']['description'],
+                        description=p['get']['description'] if 'description' in p['get'] else '',
                         endpoint=k.lstrip('/'),
-                        params=[param for param in p['get']['parameters'] if param['in'] == 'query'],
+                        params=[
+                            param
+                            for param in p['get']['parameters']
+                            if param['in'] == 'query'
+                        ]
+                        if 'parameters' in p['get'] else [],
                     ) for k, p in config['paths'].items()
                 }
             }
-        except (KeyError, OSError, yaml.YAMLError) as exc:
+        except (KeyError, OSError, TypeError, yaml.YAMLError) as exc:
             raise ClientInitError(f"Could not load API config for {kind} from {filename}") from exc
 
     @staticmethod

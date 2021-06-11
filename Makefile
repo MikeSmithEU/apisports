@@ -5,10 +5,11 @@ PYTHON:=$(shell test -e env/bin/activate && echo "env/bin/python" || echo "pytho
 env:
 	echo "Using $(shell exec $(PYTHON) --version): $(PYTHON)"
 	$(PYTHON) -m ensurepip
+	$(PYTHON) -m pip install -r requirements.txt
 
 test:
-	$(PYTHON) -m pip install pytest pycodestyle
-	PYTHONPATH="./src/" $(PYTHON) -m pytest ./tests -vvv
+	$(PYTHON) -m pip install -r requirements.test.txt
+	PYTHONPATH="./src/" $(PYTHON) -m pytest ./tests --cov=./src --cov-report html:htmlcov -vvv
 	$(PYTHON) -m pycodestyle --max-line-length=120 src tests
 
 docs:
@@ -25,3 +26,7 @@ pypi: env setuptools test
 	$(PYTHON) setup.py sdist bdist_wheel
 	$(PYTHON) -m pip install --user --upgrade twine
 	$(PYTHON) -m twine upload dist/*
+
+testcoverage: env
+	PYTHONPATH="./src/" $(PYTHON) -m pytest --cov=./src tests/
+

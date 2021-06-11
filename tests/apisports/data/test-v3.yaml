@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: API-TEST
+  version: '1.0.0'
+  description: |
+    Header
+    ------
+
+    Some general description block.
+servers:
+  - url: 'http://api-test1.server.local'
+    description: TestServer1
+  - url: 'http://api-test2.server.local'
+    description: TestServer2
+paths:
+  /ping:
+    get:
+      summary: ping
+      mock:
+        simple: pong
+      operationId: get-ping
+      description: |-
+        Ping/Pong Protocol
+  /null:
+    get:
+      summary: "null"
+      mock:
+        simple: null
+      operationId: get-null
+      description: |-
+        Null response
+  /paginated-count:
+    get:
+      summary: Paginated Count
+      mock: paginated_count
+      operationId: get-paginated-count
+      description: "Get the list of available countries.\n\n The `name`, `id` and `code` fields can be used in other endpoints as filters. \n\n> All the parameters of this endpoint can be used together."
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: from
+          description: Start from
+        - schema:
+            type: integer
+          in: query
+          name: to
+          description: End to
+        - schema:
+            type: integer
+          in: query
+          name: page
+          description: page
+        - schema:
+            type: string
+          in: header
+          name: someheader

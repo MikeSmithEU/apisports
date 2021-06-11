@@ -2,6 +2,11 @@ from ._client import ClientMeta, Client
 
 
 def _client_class(kind, version=None):
+    """
+    :return: :class:`type`
+    :rtype: type
+    """
+
     return type(kind, (Client,), ClientMeta.get(kind.lower(), version=version))
 
 
