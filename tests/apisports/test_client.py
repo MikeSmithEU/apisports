@@ -224,3 +224,18 @@ def test_paginated_count(test_v3, session, mock, adapter):
     assert type(response.data()) is PagedData
     assert list(iter(response.data())) == expected
     assert list(iter(response)) == expected
+
+    response = test.paginated_count(from_=1, to=2)
+    expected = [1, 2]
+
+    assert type(response.data()) is SimpleData
+    assert list(iter(response.data())) == expected
+    assert list(iter(response)) == expected
+
+    response = test.paginated_count(from_=1, to=1)
+    expected = [1]
+
+    assert type(response.data()) is SingleData
+    assert list(iter(response.data())) == expected
+    assert list(iter(response)) == expected
+    assert response.data().item() == 1

@@ -14,12 +14,14 @@ class AbstractData:
         :return: :class:`AbstractData` object
         :rtype: AbstractData
         """
-        if 'response' not in data:
+
+        if data is None:
+            return NoneData
+
+        if 'response' not in data or data['response'] is None:
             return NoneData
 
         response = data['response']
-        if response is None:
-            return NoneData
 
         if 'paging' in data and \
                 data['paging']['total'] > 1 and \
