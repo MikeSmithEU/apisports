@@ -57,3 +57,62 @@ def test_singledata(data):
 
     assert str(data_obj) == 'SingleData(%r)' % (data,)
     assert str(data_obj) == repr(data_obj)
+
+
+def test_simple_data():
+    data = list(range(5))
+    data_obj = AbstractData.create(
+        client=None, data={"response": data}
+    )
+
+    assert str(data_obj) == 'SimpleData(%r)' % (data,)
+    assert str(data_obj) == repr(data_obj)
+    assert len(data_obj) == 5
+    assert list(iter(data_obj)) == data
+
+    iterator = iter(data_obj)
+    assert next(iterator) == 0
+    assert next(iterator) == 1
+    assert next(iterator) == 2
+    assert next(iterator) == 3
+    assert next(iterator) == 4
+
+
+def test_paged_data():
+    data_obj = AbstractData.create(
+        client=None, data={
+            "response": list(range(3)),
+            "paging": {
+                "current": 1,
+                "total": 3,
+            },
+            "results": 3,
+            "get": "/null",
+        }
+    )
+
+    iterator = iter(data_obj)
+    assert next(iterator) == 0
+    assert next(iterator) == 1
+    assert next(iterator) == 2
+
+    with pytest.raises(PagedDataError) as exc:
+        next(iterator)
+
+    assert "no client class known" in str(exc)
+
+    data_obj = AbstractData.create(
+        client=None, data={
+            "response": list(range(3)),
+            "paging": {
+                "current": 1,
+                "total": 3,
+            },
+            "results": 3,
+        }
+    )
+
+    with pytest.raises(PagedDataError) as exc:
+        list(iter(data_obj))
+
+    assert "no request-uri known" in str(exc)

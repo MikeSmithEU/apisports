@@ -133,8 +133,8 @@ class PagedData(AbstractData):
         self._length = data['results'] * (self._total_pages - self._current_page + 1)
 
         self._data = data['response']
-        self._get = data['get']
-        self._parameters = data['parameters']
+        self._get = data['get'] if 'get' in data else None
+        self._parameters = data['parameters'] if 'parameters' in data else {}
 
     def __len__(self):
         """
@@ -144,6 +144,12 @@ class PagedData(AbstractData):
         return self._length
 
     def _fetch_next_page(self):
+        if self._get is None:
+            raise PagedDataError("Don't know how to fetch next page", "no request-uri known")
+
+        if self._client is None:
+            raise PagedDataError("Don't know how to fetch next page", "no client class known")
+
         result = self._client.get(
             self._get,
             {
