@@ -29,6 +29,14 @@ paths:
       operationId: get-null
       description: |-
         Null response
+  /import:
+    get:
+      summary: Test keyword compatibility
+      mock:
+        simple: null
+      operationId: get-import
+      description: |-
+        Python keyword api call
   /paginated-count:
     get:
       summary: Paginated Count

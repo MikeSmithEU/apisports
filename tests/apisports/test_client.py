@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import os
 from apisports._client import ClientMeta, ClientInitError
 from apisports import _client_class
-from apisports.data import SingleData, SimpleData, PagedData
+from apisports.data import SingleData, NoneData, SimpleData, PagedData
 import pytest
 import requests_mock
 import requests
@@ -108,6 +108,7 @@ def test_clientmeta(test_v3, session):
     assert callable(test_v3.ping)
     assert callable(test_v3.null)
     assert callable(test_v3.paginated_count)
+    assert callable(test_v3.import_)
 
 
 def test_session(test_v3, session):
@@ -138,6 +139,30 @@ def test_status(test_v3, session, mock, adapter):
     assert next(iter(response)) == expected
     assert next(iter(data)) == expected
     assert data.item() == expected
+
+
+def test_null(test_v3, session, mock, adapter):
+    @register_mock_uri(adapter, 'http+mock://api-test1.server.local/null')
+    def mock_null(request, context):
+        return {"response": None}
+
+    test = test_v3(session=session)
+    response = test.null()
+
+    assert_response_ok(response)
+    assert response.data() is NoneData
+
+
+def test_python_keyword_import(test_v3, session, mock, adapter):
+    @register_mock_uri(adapter, 'http+mock://api-test1.server.local/import')
+    def mock_null(request, context):
+        return {"response": None}
+
+    test = test_v3(session=session)
+    response = test.import_()
+
+    assert_response_ok(response)
+    assert response.data() is NoneData
 
 
 def test_paginated_count(test_v3, session, mock, adapter):
@@ -188,6 +213,7 @@ def test_paginated_count(test_v3, session, mock, adapter):
     response = test.paginated_count(**{"from": 1, "to": 10})
     expected = list(range(1, 11))
 
+    assert type(response.data()) is PagedData
     assert list(iter(response.data())) == expected
     assert list(iter(response)) == expected
 
@@ -195,5 +221,6 @@ def test_paginated_count(test_v3, session, mock, adapter):
     response = test.paginated_count(from_=1, to=10)
     expected = list(range(1, 11))
 
+    assert type(response.data()) is PagedData
     assert list(iter(response.data())) == expected
     assert list(iter(response)) == expected

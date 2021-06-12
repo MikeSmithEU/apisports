@@ -95,9 +95,9 @@ class ClientMeta:
             return {
                 "default_host": config['servers'][0]['url'],
                 **{
-                    p['get']['operationId'][4:].replace('-', '_'): cls._get_method(
+                    cls.operation_id_to_method_name(p['get']['operationId']): cls._get_method(
                         class_name=kind,
-                        name=p['get']['operationId'][4:].replace('-', '_'),
+                        name=cls.operation_id_to_method_name(p['get']['operationId']),
                         description=p['get']['description'] if 'description' in p['get'] else '',
                         endpoint=k.lstrip('/'),
                         params=[
@@ -116,10 +116,6 @@ class ClientMeta:
     def _get_method(class_name, name, description, endpoint, params):
         def _(self, **kwargs):
             return self.get(endpoint, kwargs)
-
-        # avoid using python keywords for parameters
-        if name in kwlist:
-            name = name + '_'
 
         _.__name__ = name
         _.__module__ = f'apisports.{class_name}'
@@ -141,3 +137,13 @@ class ClientMeta:
         _.__doc__ += '\n:return: :class:`AbstractResponse <apisports.response.AbstractResponse>` object'
         _.__doc__ += '\n:rtype: apisports.response.AbstractResponse'
         return _
+
+    @staticmethod
+    def operation_id_to_method_name(operation_id):
+        name = operation_id[4:].replace('-', '_')
+
+        # avoid using python keywords for parameters
+        if name in kwlist:
+            name = name + '_'
+
+        return name
