@@ -33,7 +33,7 @@ class AbstractData:
         if length == 0:
             return NoneData
         if length == 1:
-            return SingleData(response)
+            return SingleData(response[0])
         return SimpleData(response)
 
     def __iter__(self):

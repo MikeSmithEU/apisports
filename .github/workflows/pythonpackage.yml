@@ -41,7 +41,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install -e ".[test]"
     - name: Check code coverage
-      run: pytest tests --cov=src --cov-report xml --cov-fail-under 50
+      run: pytest tests --cov=src --cov-report xml --cov-fail-under 80
 
   lint:
     runs-on: ubuntu-latest

@@ -8,9 +8,9 @@ info:
 
     Some general description block.
 servers:
-  - url: 'mock://api-test1.server.local'
+  - url: 'http+mock://api-test1.server.local'
     description: TestServer1
-  - url: 'mock://api-test2.server.local'
+  - url: 'http+mock://api-test2.server.local'
     description: TestServer2
 paths:
   /ping:

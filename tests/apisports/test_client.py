@@ -6,6 +6,7 @@ from apisports.data import SingleData, SimpleData, PagedData
 import pytest
 import requests_mock
 import requests
+from math import ceil
 
 
 @contextmanager
@@ -43,9 +44,7 @@ def clientmeta_test_class(name, version=None):
     with clientmeta_test_path():
         cls = _client_class(name, version)
 
-        adapter = requests_mock.Adapter()
-        session = requests.Session()
-        session.mount('mock://', adapter)
+        # adapter = requests_mock.Adapter()
     return cls
 
 
@@ -55,9 +54,15 @@ def test_v3():
 
 
 @pytest.fixture
+def mock(session):
+    with requests_mock.mock() as mock:
+        return mock
+
+
+@pytest.fixture
 def session(adapter):
     session = requests.Session()
-    session.mount('mock://', adapter)
+    session.mount('http+mock://', adapter)
     return session
 
 
@@ -67,7 +72,7 @@ def adapter():
 
 
 def register_mock_uri(session, *args, **kwargs):
-    adapter = session.get_adapter('mock://')
+    # adapter = session.get_adapter('mock://')
 
     def _(func):
         def wrapped_func(request, context):
@@ -75,8 +80,13 @@ def register_mock_uri(session, *args, **kwargs):
             context.headers['Content-Type'] = 'application/json'
             return func(request, context)
 
-        adapter.register_uri('GET', *args, **kwargs, json=wrapped_func)
-        pass
+        session.register_uri(
+            'GET',
+            *args,
+            **kwargs,
+            json=wrapped_func
+        )
+
     return _
 
 
@@ -86,51 +96,13 @@ def assert_response_ok(response):
     assert response.error_description() == "Success"
 
 
-def mock_paginated_count(request, context):
-    per_page = 3
-
-    try:
-        start = int(request.params["from"])
-        stop = int(request.params["to"])
-        page = int(requests.params['page']) if 'page' in request.params else 1
-    except ValueError as exc:
-        return {
-            "errors": [
-                {
-                    "message": str(exc)
-                }
-            ]
-        }
-
-    start = start + (page - 1) * per_page
-    if start > stop:
-        return {
-            "errors": [
-                {
-                    "page": "value too high"
-                }
-            ]
-        }
-
-    result = list(range(start, min(stop + 1, start + per_page + 1)))
-
-    return {
-        "paging": {
-            "current": page,
-            "total": stop - start,
-        },
-        "results": len(result),
-        "response": result
-    }
-
-
 def test_client_init_error():
     expect_client_init_error('FileDoesNotExist')
     expect_client_init_error('InvalidYAML')
 
 
 def test_clientmeta(test_v3, session):
-    assert test_v3.default_host == 'mock://api-test1.server.local'
+    assert test_v3.default_host == 'http+mock://api-test1.server.local'
 
     assert callable(test_v3.status)
     assert callable(test_v3.ping)
@@ -138,8 +110,19 @@ def test_clientmeta(test_v3, session):
     assert callable(test_v3.paginated_count)
 
 
-def test_status(test_v3, session):
-    @register_mock_uri(session, 'mock://api-test1.server.local/status')
+def test_session(test_v3, session):
+    t = test_v3(session=session)
+    t2 = test_v3()
+
+    # assert type(t._session) is requests.Session
+    assert t._session is session
+
+    assert type(t2._session) is requests.Session
+    assert t2._session is not session
+
+
+def test_status(test_v3, session, mock, adapter):
+    @register_mock_uri(adapter, 'http+mock://api-test1.server.local/status')
     def mock_status(request, context):
         return {"response": {"status": "ok"}}
 
@@ -151,12 +134,66 @@ def test_status(test_v3, session):
     data = response.data()
     assert type(data) is SingleData
     assert len(response) == 1
-    assert data.item() == expected
+    assert list(iter(data)) == [expected]
     assert next(iter(response)) == expected
     assert next(iter(data)) == expected
+    assert data.item() == expected
 
 
-def test_paginated_count(test_v3, session):
-    register_mock_uri(session, 'mock://api-test1.server.local/paginated_count')(mock_paginated_count)
-    # todo
-    assert True
+def test_paginated_count(test_v3, session, mock, adapter):
+    @register_mock_uri(adapter, 'http+mock://api-test1.server.local/paginated-count')
+    def mock_paginated_count(request, context):
+        per_page = 3
+        params = {k: v[0] for k, v in request.qs.items()}
+
+        try:
+            start = int(params["from"]) if 'from' in params else 1
+            stop = int(params["to"]) + 1 if 'to' in params else 14
+            page = int(params['page']) if 'page' in params else 1
+        except ValueError as exc:
+            return {
+                "errors": [
+                    {
+                        "message": str(exc)
+                    }
+                ]
+            }
+
+        start = start + (page - 1) * per_page
+        if start > stop:
+            return {
+                "errors": [
+                    {
+                        "page": "value too high"
+                    }
+                ]
+            }
+
+        result = list(range(start, min(stop, start + per_page)))
+
+        return {
+            "get": "paginated-count",
+            "parameters": params,
+            "paging": {
+                "current": page,
+                "total": ceil((stop - start) / per_page),
+            },
+            "results": len(result),
+            "response": result
+        }
+
+    test = test_v3(session=session)
+    test.paginated_count()
+
+    response = test.paginated_count(**{"from": 1, "to": 10})
+    expected = list(range(1, 11))
+
+    assert list(iter(response.data())) == expected
+    assert list(iter(response)) == expected
+
+    # test support for keyword safe parameter alias
+    response = test.paginated_count(from_=1, to=10)
+    expected = list(range(1, 11))
+
+    assert list(iter(response.data())) == expected
+    assert list(iter(response)) == expected

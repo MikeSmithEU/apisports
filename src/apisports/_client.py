@@ -4,6 +4,7 @@ import os
 import yaml
 from m2r import convert
 from .response import AbstractResponse
+from keyword import kwlist
 
 
 class ClientInitError(ImportError):
@@ -116,6 +117,10 @@ class ClientMeta:
         def _(self, **kwargs):
             return self.get(endpoint, kwargs)
 
+        # avoid using python keywords for parameters
+        if name in kwlist:
+            name = name + '_'
+
         _.__name__ = name
         _.__module__ = f'apisports.{class_name}'
 
@@ -129,7 +134,7 @@ class ClientMeta:
             })
             if 'type' in p['schema']:
                 _.__doc__ += ":type {name}: {type}\n".format(
-                    name=p['name'],
+                    name=p['name'] + '_' if p['name'] in kwlist else p['name'],
                     type=p['schema']['type'],
                 )
 
