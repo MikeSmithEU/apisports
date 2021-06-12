@@ -91,6 +91,7 @@ def test_paged_data():
         }
     )
 
+    assert len(data_obj) == 9
     iterator = iter(data_obj)
     assert next(iterator) == 0
     assert next(iterator) == 1
