@@ -17,13 +17,6 @@ class AbstractResponse:
     :type data: Union[None, dict]
     """
 
-    ok = False
-    """
-    Whether the request has completed without errors.
-
-    :type: bool
-    """
-
     def __init__(self, client, response, data=None):
         self._client = client
         self._response = response
@@ -50,13 +43,14 @@ class AbstractResponse:
         response_class = SuccessResponse
 
         if response.status_code == 200:
-            if (data is None) or ('errors' in data and len(data['errors'])):
+            if (data is None) or ('errors' in data and data['errors']):
                 response_class = ErrorResponse
         else:
             response_class = HttpErrorResponse
 
         return response_class(client, response, data)
 
+    @property
     def data(self):
         """
         Get the :class:`AbstractData <apisports.data.AbstractData>` object.
@@ -67,16 +61,41 @@ class AbstractResponse:
 
         return NoneData
 
+    @property
+    def ok(self):
+        """
+        Whether the request has completed without errors.
+
+        :type: bool
+        """
+        return False
+
+    @property
     def errors(self):
         """
         Get the errors.
 
-        :return: List of errors
-        :rtype: list
+        :return: Dict of errors
+        :rtype: dict
         """
 
-        return self._data['errors'] if 'errors' in self._data else []
+        if 'errors' not in self._data:
+            return {}
 
+        errors = self._data['errors']
+
+        if not errors:
+            return {}
+
+        if type(errors) is dict:
+            return errors
+
+        if type(errors) is list:
+            return dict(errors=errors)
+
+        return dict(error=errors)
+
+    @property
     def error_description(self):
         """
         Get a string representation of the errors, or "Success" on success...
@@ -85,8 +104,9 @@ class AbstractResponse:
         :rtype: str
         """
 
-        return "Success" if self.ok else 'Error'
+        return "Success" if self.ok else '\n'.join([f"{k}: {v}" for k, v in self.errors.items()])
 
+    @property
     def headers(self):
         """
         Get response headers
@@ -96,6 +116,7 @@ class AbstractResponse:
         """
         return Headers(self._response.headers)
 
+    @property
     def raw(self):
         """
         Get raw Response object.
@@ -105,6 +126,7 @@ class AbstractResponse:
         """
         return self._response
 
+    @property
     def text(self):
         """
         Get raw response text.
@@ -119,41 +141,43 @@ class AbstractResponse:
         Delegates iteration to the :class:`AbstractData <apisports.data.AbstractData>` class.
         """
 
-        return iter(self.data())
+        return iter(self.data)
 
     def __len__(self):
         """
         Delegates ``len()`` to the :class:`AbstractData <apisports.data.AbstractData>` class.
         """
 
-        return len(self.data())
+        return len(self.data)
 
 
 class ErrorResponse(AbstractResponse):
-    def error_description(self):
-        return '\n'.join([
-            f'{k}: {v}' for k, v in self.errors().items()
-        ])
+    pass
 
 
 class HttpErrorResponse(ErrorResponse):
+    @property
     def errors(self):
         return dict(
             http_status_code=self._response.status_code,
             http_status_text=self._response.reason,
-            details=super().errors()
+            details=super().errors
         )
 
+    @property
     def error_description(self):
         return "HTTP {http_status_code}: {http_status_text}\n{content_details}".format(
-            **self.errors(),
-            content_details=super().error_description()
+            **self.errors,
+            content_details=super().error_description
         )
 
 
 class SuccessResponse(AbstractResponse):
-    ok = True
+    @property
+    def ok(self):
+        return True
 
+    @property
     def data(self):
         if self._data_object is None:
             self._data_object = AbstractData.create(self._client, self._data)
@@ -170,52 +194,58 @@ class Headers:
     def __init__(self, headers):
         self._headers = headers
 
-    def _get(self, key):
+    def __getitem__(self, item):
         try:
-            return self._headers[key]
+            return self._headers[item]
         except KeyError:
-            return ''
+            return None
 
+    @property
     def server(self):
         """
         Get the current version of the API proxy used by APISports/RapidAPI.
 
         :rtype: str
         """
-        return self._get('server')
+        return self['server']
 
+    @property
     def requests_limit(self):
         """
         The number of requests allocated per day according to your subscription
 
         :rtype: str
         """
-        return self._get('x-ratelimit-requests-limit')
+        return self['x-ratelimit-requests-limit']
 
+    @property
     def requests_remaining(self):
         """
         The number of remaining requests per day according to your subscription.
 
         :rtype: str
         """
-        return self._get('x-ratelimit-requests-remaining')
+        return self['x-ratelimit-requests-remaining']
 
+    @property
     def rate_limit(self):
         """
         Maximum number of API calls per minute.
 
         :rtype: str
         """
-        return self._get('X-RateLimit-Limit')
+        return self['X-RateLimit-Limit']
 
+    @property
     def rate_limit_remaining(self):
         """
         Number of API calls remaining before reaching the limit per minute.
 
         :rtype: str
         """
-        return self._get('X-RateLimit-Remaining')
+        return self['X-RateLimit-Remaining']
 
+    @property
     def raw(self):
         """
         Get raw headers.

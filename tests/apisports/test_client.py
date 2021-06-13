@@ -92,8 +92,9 @@ def register_mock_uri(session, *args, **kwargs):
 
 def assert_response_ok(response):
     assert response.ok
-    assert response.errors() == []
-    assert response.error_description() == "Success"
+    assert not response.errors
+    assert response.errors == {}
+    assert response.error_description == "Success"
 
 
 def test_client_init_error():
@@ -132,7 +133,7 @@ def test_status(test_v3, session, mock, adapter):
 
     assert_response_ok(response)
     expected = dict(status="ok")
-    data = response.data()
+    data = response.data
     assert type(data) is SingleData
     assert len(response) == 1
     assert list(iter(data)) == [expected]
@@ -150,7 +151,7 @@ def test_null(test_v3, session, mock, adapter):
     response = test.null()
 
     assert_response_ok(response)
-    assert response.data() is NoneData
+    assert response.data is NoneData
 
 
 def test_python_keyword_import(test_v3, session, mock, adapter):
@@ -162,7 +163,7 @@ def test_python_keyword_import(test_v3, session, mock, adapter):
     response = test.import_()
 
     assert_response_ok(response)
-    assert response.data() is NoneData
+    assert response.data is NoneData
 
 
 def test_paginated_count(test_v3, session, mock, adapter):
@@ -213,29 +214,29 @@ def test_paginated_count(test_v3, session, mock, adapter):
     response = test.paginated_count(**{"from": 1, "to": 10})
     expected = list(range(1, 11))
 
-    assert type(response.data()) is PagedData
-    assert list(iter(response.data())) == expected
+    assert type(response.data) is PagedData
+    assert list(iter(response.data)) == expected
     assert list(iter(response)) == expected
 
     # test support for keyword safe parameter alias
     response = test.paginated_count(from_=1, to=10)
     expected = list(range(1, 11))
 
-    assert type(response.data()) is PagedData
-    assert list(iter(response.data())) == expected
+    assert type(response.data) is PagedData
+    assert list(iter(response.data)) == expected
     assert list(iter(response)) == expected
 
     response = test.paginated_count(from_=1, to=2)
     expected = [1, 2]
 
-    assert type(response.data()) is SimpleData
-    assert list(iter(response.data())) == expected
+    assert type(response.data) is SimpleData
+    assert list(iter(response.data)) == expected
     assert list(iter(response)) == expected
 
     response = test.paginated_count(from_=1, to=1)
     expected = [1]
 
-    assert type(response.data()) is SingleData
-    assert list(iter(response.data())) == expected
+    assert type(response.data) is SingleData
+    assert list(iter(response.data)) == expected
     assert list(iter(response)) == expected
-    assert response.data().item() == 1
+    assert response.data.item() == 1

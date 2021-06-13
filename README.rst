@@ -35,7 +35,7 @@ Example usage
     players = api.players(season=2020, team=49)
 
     if not players.ok:
-        print("something went wrong: " + players.error_description())
+        print("something went wrong: " + players.error_description)
     else:
         sorted_by_age = sorted(players, key=lambda player : player['player']['age'])
         def format_player(player):

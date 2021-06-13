@@ -1,4 +1,6 @@
 from apisports.data import *
+from apisports.response import ErrorResponse, AbstractResponse
+from helpers import MockClient, MockResponse
 import pytest
 
 
@@ -117,3 +119,40 @@ def test_paged_data():
         list(iter(data_obj))
 
     assert "no request-uri known" in str(exc)
+
+    data = {
+        "response": list(range(3)),
+        "paging": {
+            "current": 1,
+            "total": 3,
+        },
+        "results": 3,
+        "get": "/null",
+    }
+
+    data_obj = PagedData(
+        MockClient(
+            AbstractResponse.create(
+                None,
+                MockResponse('{"errors": {"error": "Mock Error"}}', 200)
+            )
+        ),
+        data
+    )
+
+    iterator = iter(data_obj)
+    assert next(iterator) == 0
+    assert next(iterator) == 1
+    assert next(iterator) == 2
+
+    with pytest.raises(PagedDataError) as exc:
+        next(iterator)
+
+    assert "Could not fetch next page" in str(exc)
+    assert "error: Mock Error" in str(exc)
+
+    with pytest.raises(PagedDataError) as exc:
+        list(iter(data_obj))
+
+    assert "Could not fetch next page" in str(exc)
+    assert "error: Mock Error" in str(exc)

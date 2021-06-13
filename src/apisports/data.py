@@ -157,8 +157,8 @@ class PagedData(AbstractData):
                 "page": self._current_page + 1
             })
         if not result.ok:
-            raise PagedDataError("Could not fetch next page", result.error_description())
-        self._data += list(iter(result.data()))
+            raise PagedDataError("Could not fetch next page", result.error_description)
+        self._data += list(iter(result.data))
         self._current_page += 1
 
     def __iter__(self):

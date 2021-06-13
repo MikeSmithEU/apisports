@@ -1,25 +1,32 @@
 from apisports.response import AbstractResponse, ErrorResponse, HttpErrorResponse
 from apisports.data import NoneData
+from helpers import MockResponse
 import pytest
 
 
-class MockResponse:
-    def __init__(self, text, status_code=200):
-        self.text = text
-        self.status_code = status_code
+def assert_is_error(response):
+    assert not response.ok
+    assert response.errors
+    assert response.data is NoneData
 
 
 def test_invalidjson():
     response = AbstractResponse.create(None, MockResponse("-"))
 
-    assert not response.ok
+    assert_is_error(response)
     assert type(response) is ErrorResponse
-    assert response.data() is NoneData
 
 
 def test_httperror():
     response = AbstractResponse.create(None, MockResponse('[]', 404))
 
-    assert not response.ok
+    assert_is_error(response)
     assert type(response) is HttpErrorResponse
-    assert response.data() is NoneData
+
+
+def test_reportederror():
+    response = AbstractResponse.create(None, MockResponse('{"errors": {"random": "error"}}', 200))
+
+    assert_is_error(response)
+    assert type(response) is ErrorResponse
+    assert response.errors == {"random": "error"}
