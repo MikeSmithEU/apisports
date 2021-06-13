@@ -6,6 +6,7 @@ from apisports.data import SingleData, NoneData, SimpleData, PagedData
 import pytest
 import requests_mock
 import requests
+from helpers import assert_response_ok
 from math import ceil
 
 
@@ -88,13 +89,6 @@ def register_mock_uri(session, *args, **kwargs):
         )
 
     return _
-
-
-def assert_response_ok(response):
-    assert response.ok
-    assert not response.errors
-    assert response.errors == {}
-    assert response.error_description == "Success"
 
 
 def test_client_init_error():

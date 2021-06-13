@@ -105,7 +105,3 @@ outputs::
     Thiago Emiliano da Silva: 37
     Wilfredo Daniel Caballero: 40
 
-TODO
-....
-
-- 100% code coverage unit tests

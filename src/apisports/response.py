@@ -191,6 +191,7 @@ class Headers:
     :param headers: :class:`CaseInsensitiveDict <requests.structures.CaseInsensitiveDict>` object
     :type headers: requests.structures.CaseInsensitiveDict
     """
+
     def __init__(self, headers):
         self._headers = headers
 
@@ -199,6 +200,9 @@ class Headers:
             return self._headers[item]
         except KeyError:
             return None
+
+    def __contains__(self, item):
+        return item in self._headers
 
     @property
     def server(self):
