@@ -9,9 +9,13 @@ ApiSports
     :alt: GitHub Workflow Status (branch)
     :target: https://github.com/MikeSmithEU/apisports/actions
 
+.. image:: https://coveralls.io/repos/github/MikeSmithEU/apisports/badge.svg
+    :alt: Code Coverage
+    :target: https://coveralls.io/github/MikeSmithEU/apisports
+
 .. image:: https://readthedocs.org/projects/apisports/badge/?version=latest
-    :target: https://apisports.readthedocs.io/
     :alt: Documentation Status
+    :target: https://apisports.readthedocs.io/
 
 A simple python library for easy querying of APISports data.
 
