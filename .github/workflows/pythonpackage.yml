@@ -1,6 +1,6 @@
 name: Python package
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -32,16 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
+    - uses: actions/setup-python@v1
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install -e ".[test]"
     - name: Check code coverage
       run: pytest tests --cov=src --cov-report xml --cov-fail-under 90
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel: true
+        github-token: ${{ github.token }}
 
   lint:
     runs-on: ubuntu-latest
