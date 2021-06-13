@@ -3,6 +3,7 @@ ApiSports
 
 
 .. image:: https://img.shields.io/github/license/MikeSmithEU/apisports.svg
+    :alt: License (MIT)
     :target: https://github.com/MikeSmithEU/apisports/blob/main/LICENSE
 
 .. image:: https://img.shields.io/github/workflow/status/MikeSmithEU/apisports/Python%20package
