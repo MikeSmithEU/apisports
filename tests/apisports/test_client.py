@@ -1,13 +1,15 @@
-from contextlib import contextmanager
 import os
-from apisports._client import ClientMeta, ClientInitError
-from apisports import _client_class
-from apisports.data import SingleData, NoneData, SimpleData, PagedData
-import pytest
-import requests_mock
-import requests
-from helpers import assert_response_ok
+from contextlib import contextmanager
 from math import ceil
+
+import pytest
+import requests
+import requests_mock
+
+from apisports import _client_class
+from apisports._client import ClientMeta, ClientInitError
+from apisports.data import SingleData, NoneData, SimpleData, PagedData
+from helpers import assert_response_ok
 
 
 @contextmanager
@@ -44,8 +46,6 @@ def expect_client_init_error(name, version=None):
 def clientmeta_test_class(name, version=None):
     with clientmeta_test_path():
         cls = _client_class(name, version)
-
-        # adapter = requests_mock.Adapter()
     return cls
 
 
@@ -72,16 +72,14 @@ def adapter():
     return requests_mock.Adapter()
 
 
-def register_mock_uri(session, *args, **kwargs):
-    # adapter = session.get_adapter('mock://')
-
+def register_mock_uri(adapter, *args, **kwargs):
     def _(func):
         def wrapped_func(request, context):
             context.status_code = 200
             context.headers['Content-Type'] = 'application/json'
             return func(request, context)
 
-        session.register_uri(
+        adapter.register_uri(
             'GET',
             *args,
             **kwargs,
@@ -110,7 +108,7 @@ def test_session(test_v3, session):
     t = test_v3(session=session)
     t2 = test_v3()
 
-    # assert type(t._session) is requests.Session
+    assert type(t._session) is requests.Session
     assert t._session is session
 
     assert type(t2._session) is requests.Session

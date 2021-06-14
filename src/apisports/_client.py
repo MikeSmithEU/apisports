@@ -1,10 +1,12 @@
+import os
+from keyword import kwlist
+
 import requests
 import requests.structures
-import os
 import yaml
 from m2r import convert
+
 from .response import AbstractResponse
-from keyword import kwlist
 
 
 class ClientInitError(ImportError):

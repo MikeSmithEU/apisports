@@ -1,5 +1,5 @@
 import json
-from json import JSONDecodeError
+
 from .data import NoneData, AbstractData
 
 
@@ -37,7 +37,7 @@ class AbstractResponse:
 
         try:
             data = json.loads(response.text)
-        except (JSONDecodeError, KeyError) as exc:
+        except (json.JSONDecodeError, KeyError) as exc:
             data = dict(errors=str(exc))
 
         response_class = SuccessResponse
