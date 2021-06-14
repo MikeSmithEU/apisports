@@ -28,6 +28,9 @@ class AbstractResponse:
         """
         AbstractResponse factory method.
 
+        :param client: :class:`Client <apisports._client.Client>` object
+        :type client: apisports._client.Client
+
         :param response: :class:`Response <requests.Response>` object
         :type response: requests.Response
 

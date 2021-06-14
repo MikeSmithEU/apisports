@@ -25,16 +25,16 @@ def assert_response_error(response):
 
 
 class MockResponse:
-    def __init__(self, text, status_code=200, headers={}):
+    def __init__(self, text, status_code=200, headers=None):
         self.text = text
         self.status_code = status_code
         self.reason = f"HTTP {status_code}"
-        self.headers = headers
+        self.headers = headers if headers else {}
 
 
 class MockClient:
     def __init__(self, response):
         self._response = response
 
-    def get(self, *args, **kwargs):
+    def get(self, *_args, **_kwargs):
         return self._response
